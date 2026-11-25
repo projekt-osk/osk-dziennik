@@ -1,6 +1,7 @@
 "use strict";
 /* widoki-ekrany.js – źródło w src/ (repo osk-dziennik); wersje prod i test buduje narzedzia/buduj.mjs */
 function render(){
+  if(typeof netBar==="function")netBar();
   const ae=document.activeElement;
   if(ae&&ae.closest&&ae.closest("#view")&&ae.dataset&&ae.dataset.defer!==undefined){S.pending=true;return}
   S.pending=false;
@@ -22,6 +23,7 @@ function render(){
   v.innerHTML=h;
   if(twL!=null&&!S.scrollSk){const tw=v.querySelector(".tw");if(tw)tw.scrollLeft=twL}
   if(focusId){const el=document.getElementById(focusId);if(el){el.focus();if(selS!=null&&el.setSelectionRange)try{el.setSelectionRange(selS,selS)}catch(e){}}}
+  if(typeof smsFit==="function")smsFit();
   if(S.scrollSk){const tw=v.querySelector(".tw");if(tw){tw.scrollLeft=tw.scrollWidth;requestAnimationFrame(()=>tw.scrollLeft=tw.scrollWidth)}S.scrollSk=false}
   if(S.scrollGrid){S.scrollGrid=false;const n=v.querySelector(".grid .now");if(n)n.scrollIntoView({block:"center"})}
 }

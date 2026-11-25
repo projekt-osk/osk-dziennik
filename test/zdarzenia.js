@@ -137,9 +137,9 @@ const A={
   eksport(){kopiaPobierz()},
   kopiaXl(){kopiaXlPobierz()},
   kopiaWybierz(){kopiaWybierz()},
-  kopiaAnuluj(){S.rest=null;S.restArm=false;render()},
-  kopiaZamknij(){S.rest=null;S.restArm=false;render()},
-  kopiaGo(){if(pvBlok())return;if(!S.restArm){S.restArm=true;render();setTimeout(()=>{if(S.restArm){S.restArm=false;render()}},4000);return}S.restArm=false;kopiaPrzywroc()},
+  kopiaAnuluj(){S.rest=null;S.restTxt="";render()},
+  kopiaZamknij(){S.rest=null;S.restTxt="";render()},
+  kopiaGo(){if(pvBlok())return;if(!kopiaSlowoOk(S.restTxt))return;kopiaPrzywroc()},
   przyklad(){if(pvBlok()||typeof przykladWczytaj!=="function")return;if(Object.keys(S.K).length&&!S.przArm){S.przArm=true;render();setTimeout(()=>{if(S.przArm){S.przArm=false;render()}},4000);return}S.przArm=false;przykladWczytaj()},
   toggleOdw(el){S.odwOpen=S.odwOpen||{};S.odwOpen[el.dataset.d]=!S.odwOpen[el.dataset.d];render()},
   togglePastDays(){S.showPastDays=!S.showPastDays;render()},
@@ -168,6 +168,7 @@ document.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if
 document.addEventListener("input",e=>{const el=e.target;
   if(el.dataset.in==="q"){S.q=el.value;render()}
   if(el.dataset.in==="tq"){S.tq=el.value;render()}
+  if(el.dataset.in==="rtxt"){S.restTxt=el.value;const b=document.querySelector("[data-act=kopiaGo]");if(b)b.disabled=!kopiaSlowoOk(el.value)}  // przywracanie: przycisk aktywny po wpisaniu słowa, bez przerysowania (fokus)
   if(el.dataset.in==="wcz"&&S.wczArm){const x=parseFloat(String(el.value).replace(",","."));if(!(Math.round(x*2)/2===S.wczVal)){  // BUG-033: edycja pola zdejmuje „Na pewno zmienić?” bez przerysowania (fokus)
     clearTimeout(A._wczT);S.wczArm=false;S.wczVal=null;const b=document.querySelector("[data-act=wczSave]");if(b){b.classList.remove("warnb");b.textContent="Zapisz godziny"}}}
   if(el.dataset.sh==="uwagi"&&S.draft){S.draft.uwagi=el.value}});
@@ -208,7 +209,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.draft)closeSheet(
 // Nasłuch po błędzie (np. permission-denied przed wklejeniem reguł) wznawia się sam: co 20 s, po powrocie sieci,
 // po powrocie do karty, po zalogowaniu i przyciskiem „Spróbuj ponownie” – bez przeładowania strony.
 let dbUn=[],dbTimer=null,dbRetry=null;
-function dbStop(){dbUn.forEach(f=>{try{f()}catch(e){}});dbUn=[];clearTimeout(dbTimer);clearTimeout(dbRetry);dbRetry=null}
+function dbStop(){S.pw={};dbUn.forEach(f=>{try{f()}catch(e){}});dbUn=[];clearTimeout(dbTimer);clearTimeout(dbRetry);dbRetry=null}
 function dbBlad(e){clearTimeout(dbTimer);S.err=e?.code||"błąd";S.slow=false;render();
   if(S.user&&!dbRetry)dbRetry=setTimeout(()=>{dbRetry=null;if(S.user&&S.err)dbStart()},20000)}
 function dbStart(){
@@ -216,10 +217,23 @@ function dbStart(){
   dbTimer=setTimeout(()=>{S.slow=true;render()},10000);
   const ready=()=>{if(S.got.k&&S.got.j&&S.got.u){clearTimeout(dbTimer);S.slow=false}};
   const fail=e=>{dbStop();dbBlad(e)};
-  dbUn.push(db.listen("kursanci",s=>{const m={};s.docs.forEach(d=>m[d.id]=d.data());S.K=m;if(!s.metadata.fromCache)S.got.k=true;ready();schedule();if(S.draft)updWarn()},fail));
-  dbUn.push(db.listen("jazdy",s=>{const m={};s.docs.forEach(d=>m[d.id]=d.data());S.J=m;if(!s.metadata.fromCache)S.got.j=true;ready();schedule();if(S.draft)updWarn()},fail));
-  dbUn.push(db.listen("koszty",s=>{const m={};s.docs.forEach(d=>m[d.id]=d.data());S.KO=m;schedule()},()=>{}));  // P-025: osobny zbiór, błąd nie blokuje aplikacji
-  dbUn.push(db.listen("ustawienia",s=>{S.INST=null;S.META=null;s.docs.forEach(d=>{if(d.id==="instruktor")S.INST=d.data();if(d.id==="meta")S.META=d.data()});if(!s.metadata.fromCache)S.got.u=true;ready();schedule()},fail))}
+  dbUn.push(db.listen("kursanci",s=>{pw("k",s);const m={};s.docs.forEach(d=>m[d.id]=d.data());S.K=m;if(!s.metadata.fromCache)S.got.k=true;ready();schedule();if(S.draft)updWarn()},fail));
+  dbUn.push(db.listen("jazdy",s=>{pw("j",s);const m={};s.docs.forEach(d=>m[d.id]=d.data());S.J=m;if(!s.metadata.fromCache)S.got.j=true;ready();schedule();if(S.draft)updWarn()},fail));
+  dbUn.push(db.listen("koszty",s=>{pw("ko",s);const m={};s.docs.forEach(d=>m[d.id]=d.data());S.KO=m;schedule()},()=>{}));  // P-025: osobny zbiór, błąd nie blokuje aplikacji
+  dbUn.push(db.listen("ustawienia",s=>{pw("u",s);S.INST=null;S.META=null;s.docs.forEach(d=>{if(d.id==="instruktor")S.INST=d.data();if(d.id==="meta")S.META=d.data()});if(!s.metadata.fromCache)S.got.u=true;ready();schedule()},fail))}
+/* ============================================================ pasek offline i auto-wysokość SMS */
+// Pasek u góry (w nagłówku, przesuwa treść): offline = brak sieci; „Synchronizuję…” = sieć wróciła, a zapisy z offline jeszcze nie dotarły do serwera.
+function pw(n,s){S.pw=S.pw||{};S.pw[n]=!!(s.metadata&&s.metadata.hasPendingWrites);netBar()}
+function netBar(){
+  const el=document.getElementById("offbar");if(!el)return;
+  const off=navigator.onLine===false,pend=Object.values(S.pw||{}).some(Boolean);
+  if(off&&pend)S.offPend=true;if(!pend)S.offPend=false;
+  const st=S.auth!=="in"?"":off?"off":(pend&&S.offPend)?"sync":"";
+  if(el.dataset.st!==st){el.dataset.st=st;el.hidden=!st;
+    el.textContent=st==="off"?"Pracujesz offline – zmiany zapiszą się po połączeniu z internetem":st==="sync"?"Synchronizuję…":""}
+  document.documentElement.style.setProperty("--offh",(st?el.offsetHeight:0)+"px")}
+function smsFit(){document.querySelectorAll("textarea.sms").forEach(t=>{t.style.height="auto";t.style.height=(t.scrollHeight+t.offsetHeight-t.clientHeight)+"px"})}
+addEventListener("online",netBar);addEventListener("offline",netBar);addEventListener("resize",()=>{netBar();smsFit()});addEventListener("load",smsFit);
 const dbWznow=()=>{if(S.user&&S.err&&navigator.onLine!==false)dbStart()};
 addEventListener("online",dbWznow);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")dbWznow()});

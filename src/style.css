@@ -136,7 +136,7 @@ textarea{min-height:84px;resize:vertical}
 .days span.off{opacity:.45;text-decoration:line-through}
 
 /* karta */
-.ktabs{position:sticky;top:calc(env(safe-area-inset-top,0px) + 60px);z-index:15;display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:12px;overflow-x:auto}
+.ktabs{position:sticky;top:calc(env(safe-area-inset-top,0px) + 60px + var(--offh,0px));z-index:15;display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:12px;overflow-x:auto}
 .ktabs button{border:0;background:transparent;border-radius:9px;padding:8px 12px;white-space:nowrap;font-weight:700;font-size:14.5px;color:var(--muted)}
 .ktabs button[aria-current="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgb(16 24 40 / .12)}
 .hero-n{font-size:46px;font-weight:700;line-height:1}
@@ -395,3 +395,12 @@ table.rejt{width:100%;border-collapse:collapse;font-size:14px}
 
 /* F-2026.11.25: ekran logowania – bez dolnego paska */
 body.wylogowany .bnav{display:none}
+
+/* F-2026.11.25-6: pasek offline w nagłówku (przesuwa treść), porównanie kopii przy przywracaniu */
+.offbar{background:var(--warn);color:var(--surface);font-weight:700;font-size:15px;line-height:1.3;text-align:center;padding:8px max(16px,env(safe-area-inset-left,0px))}
+.offbar[data-st=sync]{background:var(--accent);color:var(--accent-fg)}
+.banner.bad{background:var(--bad-soft);color:var(--bad);font-weight:700;border:2px solid var(--bad)}
+.kcmp{width:100%;border-collapse:collapse;margin-top:8px;font-size:15px}
+.kcmp th,.kcmp td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.kcmp th{font-size:13px;color:var(--muted);font-weight:700}
+.kcmp td:first-child{color:var(--muted)}

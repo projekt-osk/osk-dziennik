@@ -12,6 +12,11 @@ const KOPIA_KOL=["kursanci","jazdy","koszty"];
 const kopiaInni=k=>Array.isArray(k&&k.jazdy_inni)?k.jazdy_inni.length:0;
 function kopiaLiczby(kol){const K=Object.values(kol.kursanci||{});
   return{kursanci:K.length,jazdy:Object.keys(kol.jazdy||{}).length,koszty:Object.keys(kol.koszty||{}).length,inni:K.reduce((s,k)=>s+kopiaInni(k),0)}}
+// Przywracanie – porównanie kopii z bieżącą bazą: najnowsza data jazdy i kosztu oraz ocena „kopia starsza / uboższa”.
+const kopiaMax=m=>Object.values(m||{}).reduce((a,x)=>x&&typeof x.data==="string"&&/^\d{4}-\d\d-\d\d$/.test(x.data)&&x.data>a?x.data:a,"");
+const kopiaStat=(K,J,KO)=>Object.assign(kopiaLiczby({kursanci:K,jazdy:J,koszty:KO}),{jmax:kopiaMax(J),komax:kopiaMax(KO)});
+function kopiaStarsza(c,t){return c.kursanci<t.kursanci||c.jazdy<t.jazdy||c.koszty<t.koszty||c.jmax<t.jmax||c.komax<t.komax}
+const kopiaSlowoOk=v=>String(v||"").trim().toLocaleUpperCase("pl").normalize("NFD").replace(/[\u0300-\u036f]/g,"")==="PRZYWROC";
 // Dane z urządzenia (to, co aplikacja ma w pamięci, także offline) → {kursanci:{id:dok}, jazdy, koszty, ustawienia:{instruktor,meta}}
 function kopiaDane(){const o=m=>{const r={};Object.keys(m||{}).sort().forEach(id=>r[id]=clone(m[id]));return r};
   const u={};if(S.INST)u.instruktor=clone(S.INST);if(S.META)u.meta=clone(S.META);
@@ -19,11 +24,11 @@ function kopiaDane(){const o=m=>{const r={};Object.keys(m||{}).sort().forEach(id
 // Rozpoznaje plik kopii: nowy (format osk-kopia), stary z artefaktu (kolekcje albo same tablice). Zwraca {kol,rodzaj,build,liczby} albo rzuca tekst błędu.
 function kopiaNorm(d){
   if(!d||typeof d!=="object"||Array.isArray(d))throw "To nie jest plik kopii OSK.";
-  let kol,rodzaj,build=null;
+  let kol,rodzaj,build=null,utw=null;
   if(d.format===KOPIA_FORMAT){
     if(typeof d.wersja_formatu!=="number"||d.wersja_formatu>KOPIA_WER)throw "Kopia pochodzi z nowszej wersji aplikacji (format "+d.wersja_formatu+"). Zaktualizuj aplikację.";
     if(!d.kolekcje||typeof d.kolekcje!=="object")throw "W pliku kopii brakuje danych.";
-    kol=d.kolekcje;rodzaj="nowy";build=d.build||null}
+    kol=d.kolekcje;rodzaj="nowy";build=d.build||null;utw=typeof d.utworzono==="string"&&!isNaN(Date.parse(d.utworzono))?iso(new Date(d.utworzono)):null}
   else if(d.kolekcje&&typeof d.kolekcje==="object"&&d.kolekcje.kursanci&&d.kolekcje.jazdy){kol=d.kolekcje;rodzaj="stary"}
   else if(Array.isArray(d.kursanci)&&Array.isArray(d.jazdy)&&d.instruktor){
     const m=a=>{const r={};a.forEach(x=>{if(x&&typeof x.id==="string")r[x.id]=x});return r};
@@ -42,7 +47,7 @@ function kopiaNorm(d){
   if(!us.instruktor||typeof us.instruktor!=="object")throw "W kopii brakuje ustawień instruktora.";
   out.ustawienia.instruktor=us.instruktor;if(us.meta&&typeof us.meta==="object")out.ustawienia.meta=us.meta;
   if(!Object.keys(out.kursanci).length&&!Object.keys(out.jazdy).length)throw "Kopia jest pusta (brak kursantów i jazd) – nie ma czego przywracać.";
-  return{kol:out,rodzaj,build,liczby:kopiaLiczby(out)}}
+  return{kol:out,rodzaj,build,utw,liczby:kopiaLiczby(out)}}
 const kopiaDniOd=(a,b)=>Math.round((pISO(a)-pISO(b))/864e5);
 function kopiaDni(){const o=S.META&&S.META.ostatnia_kopia;return typeof o==="string"&&/^\d{4}-\d\d-\d\d$/.test(o)?kopiaDniOd(realToday(),o):null}
 const kopiaPotrzebna=()=>S.auth==="in"&&!S.err&&(Object.keys(S.K).length+Object.keys(S.J).length)>0&&(()=>{const n=kopiaDni();return n===null||n>=KOPIA_DNI})();
@@ -132,10 +137,21 @@ function kopiaHtml(){
     if(R.busy)h+=`<b>${esc(R.busy)}</b><br><span class="small">Nie zamykaj aplikacji.</span>`;
     else if(R.done){const c=R.done;h+=`<b>Przywrócono dane z kopii.</b><br><span class="small">kursanci: ${c.kursanci} · jazdy: ${c.jazdy} · koszty: ${c.koszty} · jazdy z innym instruktorem: ${c.inni}</span>${R.przed?`<br><span class="small">Kopia poprzedniego stanu jest w Pobranych (pliki „…-przed-przywroceniem”).</span>`:""}<div class="row" style="margin-top:8px"><button class="btn sm" data-act="kopiaZamknij">OK</button></div>`}
     else if(R.err)h+=`${esc(R.err)}<div class="row" style="margin-top:8px"><button class="btn sm" data-act="kopiaZamknij">Zamknij</button></div>`;
-    else if(R.kol){const c=R.liczby,t=kopiaLiczby({kursanci:S.K,jazdy:S.J,koszty:S.KO});
-      h+=`<b>Plik: ${esc(R.plik)}</b> (${R.rodzaj==="stary"?"stary format z poprzedniej aplikacji":"format kopii OSK"}${R.build?", "+esc(R.build):""})<br><span class="small">w pliku – kursanci: ${c.kursanci} · jazdy: ${c.jazdy} · koszty: ${c.koszty} · jazdy z innym instruktorem: ${c.inni}</span><br><span class="small">teraz w aplikacji – kursanci: ${t.kursanci} · jazdy: ${t.jazdy} · koszty: ${t.koszty}</span>
+    else if(R.kol){const c=R.stat,t=kopiaStat(S.K,S.J,S.KO),pusta=!(t.kursanci+t.jazdy+t.koszty),starsza=!pusta&&kopiaStarsza(c,t),ok=kopiaSlowoOk(S.restTxt),dt=x=>x?esc(fdy(x)):"brak";
+      h+=`<b>Plik: ${esc(R.plik)}</b> (${R.rodzaj==="stary"?"stary format z poprzedniej aplikacji":"format kopii OSK"}${R.build?", "+esc(R.build):""})
+      <table class="kcmp"><thead><tr><th></th><th>Kopia</th><th>Teraz w aplikacji</th></tr></thead><tbody>
+      <tr><td>Data</td><td>${R.utw?esc(fdy(R.utw)):"brak daty"}</td><td>${esc(fdy(realToday()))}</td></tr>
+      <tr><td>Kursanci</td><td>${c.kursanci}</td><td>${t.kursanci}</td></tr>
+      <tr><td>Jazdy</td><td>${c.jazdy}</td><td>${t.jazdy}</td></tr>
+      <tr><td>Koszty</td><td>${c.koszty}</td><td>${t.koszty}</td></tr>
+      <tr><td>Najnowsza jazda</td><td>${dt(c.jmax)}</td><td>${dt(t.jmax)}</td></tr>
+      <tr><td>Najnowszy koszt</td><td>${dt(c.komax)}</td><td>${dt(t.komax)}</td></tr></tbody></table>
+      <span class="small">Jazdy z innym instruktorem w kopii: ${c.inni}</span>
+      ${starsza?`<div class="banner bad" role="alert" style="margin-top:10px">Ta kopia jest starsza niż dane w aplikacji – nowsze zmiany zostaną utracone.</div>`:""}
+      ${pusta?`<p class="small" style="margin:8px 0 0">Aplikacja jest teraz pusta – to pierwsze wczytanie danych.</p>`:""}
       <p class="small" style="margin:8px 0 0"><b>Przywrócenie zastąpi wszystkie dane w aplikacji</b> zawartością pliku (wszystko spoza pliku zostanie usunięte, także na innych urządzeniach). Przed zastąpieniem aplikacja sama pobierze kopię bieżącego stanu.</p>
-      <div class="row" style="margin-top:10px"><button class="btn${S.restArm?" warnb":" badb"}" data-act="kopiaGo">${S.restArm?"Dotknij ponownie, aby przywrócić":"Przywróć dane z tego pliku"}</button><button class="btn" data-act="kopiaAnuluj">Anuluj</button></div>`}
+      <label class="field full" style="margin-top:10px"><span class="lbl">Aby przywrócić, wpisz słowo PRZYWRÓĆ</span><input type="text" id="rest-txt" data-in="rtxt" value="${esc(S.restTxt||"")}" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false"></label>
+      <div class="row" style="margin-top:10px"><button class="btn badb" data-act="kopiaGo"${ok?"":" disabled"}>Przywróć dane z tego pliku</button><button class="btn" data-act="kopiaAnuluj">Anuluj</button></div>`}
     h+=`</div>`}
   return h+`</section>`}
 
@@ -146,11 +162,12 @@ function kopiaWybierz(){
   const sprzat=()=>setTimeout(()=>i.remove(),60000);
   i.addEventListener("change",()=>{const f=i.files&&i.files[0];i.remove();if(!f)return;
     if(f.size>25*1024*1024){S.rest={err:"Plik jest za duży na kopię OSK."};render();return}
-    f.text().then(t=>{try{const r=kopiaNorm(JSON.parse(t));S.restArm=false;S.rest={plik:f.name,kol:r.kol,rodzaj:r.rodzaj,build:r.build,liczby:r.liczby}}
+    f.text().then(t=>{try{const r=kopiaNorm(JSON.parse(t));S.restTxt="";S.rest={plik:f.name,kol:r.kol,rodzaj:r.rodzaj,build:r.build,utw:r.utw,liczby:r.liczby,stat:kopiaStat(r.kol.kursanci,r.kol.jazdy,r.kol.koszty)}}
       catch(x){S.rest={err:typeof x==="string"?x:"Nie udało się odczytać pliku (to nie jest poprawny plik .json)."}}render()},()=>{S.rest={err:"Nie udało się odczytać pliku."};render()})});
   i.addEventListener("cancel",()=>i.remove());sprzat();i.click()}
 async function kopiaPrzywroc(){
   const R=S.rest;if(!R||!R.kol||R.busy||R.done)return;if(pvBlok())return;
+  if(!kopiaSlowoOk(S.restTxt))return;
   if(!S.db||!S.user){R.err="Brak połączenia z bazą – zaloguj się.";render();return}
   if(navigator.onLine===false){R.err="Przywracanie wymaga połączenia z internetem. Połącz się i spróbuj ponownie (kopię bieżącego stanu można pobrać bez internetu).";render();return}
   R.busy="Pobieram kopię bieżącego stanu…";render();
@@ -166,9 +183,9 @@ async function kopiaPrzywroc(){
     for(let i=0;i<ops.length;i+=CZ){
       R.busy="Zapisuję dane z kopii… "+Math.min(i+CZ,ops.length)+" z "+ops.length;render();
       await Promise.race([S.db.batch(ops.slice(i,i+CZ)),kopiaCzekaj(30000).then(()=>{throw new Error("serwer nie odpowiada")})])}
-    R.done=kopiaLiczby(kol);R.busy=null;R.kol=null;S.restArm=false;render();
+    R.done=kopiaLiczby(kol);R.busy=null;R.kol=null;S.restTxt="";render();
     toast(`Przywrócono: kursanci ${R.done.kursanci}, jazdy ${R.done.jazdy}, koszty ${R.done.koszty}, jazdy z innym instruktorem ${R.done.inni}`)}
-  catch(e){R.busy=null;R.err="Przywracanie przerwane ("+(e&&(e.code||e.message)||e)+"). Dane mogą być przywrócone tylko częściowo – wybierz plik kopii i spróbuj ponownie."+(R.przed?" Kopia poprzedniego stanu jest w Pobranych.":"");S.restArm=false;render()}}
+  catch(e){R.busy=null;R.err="Przywracanie przerwane ("+(e&&(e.code||e.message)||e)+"). Dane mogą być przywrócone tylko częściowo – wybierz plik kopii i spróbuj ponownie."+(R.przed?" Kopia poprzedniego stanu jest w Pobranych.":"");S.restTxt="";render()}}
 
 // Biblioteka Excel wczytywana z wyprzedzeniem (z cache service workera), żeby kopia nie czekała na nią po kliknięciu.
 setTimeout(()=>{kopiaXlsxLib().catch(()=>{})},3000);

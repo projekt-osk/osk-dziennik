@@ -1,0 +1,506 @@
+{
+ "ustawienia": {
+  "instruktor": {
+   "okresy": [
+    {
+     "od": "2026-10-26",
+     "do": null,
+     "tydzien": {
+      "0": [
+       [
+        480,
+        1200
+       ]
+      ],
+      "1": [
+       [
+        480,
+        1200
+       ]
+      ],
+      "2": [
+       [
+        480,
+        1200
+       ]
+      ],
+      "3": [
+       [
+        480,
+        1200
+       ]
+      ],
+      "4": [
+       [
+        480,
+        1200
+       ]
+      ]
+     }
+    }
+   ],
+   "wyjatki": [],
+   "wyjatkowo_do": 1260,
+   "stawka": 100
+  },
+  "meta": {
+   "nastepne_id": {
+    "ID": 5,
+    "OL": 2,
+    "jazda": 14
+   },
+   "slowniki": {
+    "umiejetnosci": [
+     {
+      "nr": "1.1",
+      "nazwa": "Przygotowanie do jazdy",
+      "sekcja": "cwiczenia"
+     },
+     {
+      "nr": "1.2",
+      "nazwa": "Ruszanie i zatrzymywanie",
+      "sekcja": "cwiczenia"
+     },
+     {
+      "nr": "2.1",
+      "nazwa": "Zmiana biegów",
+      "sekcja": "cwiczenia"
+     },
+     {
+      "nr": "3.1",
+      "nazwa": "Jazda po łuku",
+      "sekcja": "cwiczenia"
+     },
+     {
+      "nr": "4.1",
+      "nazwa": "Parkowanie równoległe",
+      "sekcja": "cwiczenia"
+     },
+     {
+      "nr": "5.1",
+      "nazwa": "Skrzyżowania równorzędne",
+      "sekcja": "cwiczenia"
+     },
+     {
+      "nr": "6.1",
+      "nazwa": "Ronda",
+      "sekcja": "cwiczenia"
+     },
+     {
+      "nr": "7.1",
+      "nazwa": "Obserwacja lusterek",
+      "sekcja": "obserwacje"
+     },
+     {
+      "nr": "7.2",
+      "nazwa": "Sygnalizowanie manewrów",
+      "sekcja": "obserwacje"
+     }
+    ],
+    "miejsca": [
+     "Plac manewrowy",
+     "Centrum",
+     "Obwodnica"
+    ],
+    "teoria": [
+     "Pierwszeństwo",
+     "Znaki poziome",
+     "Hamowanie awaryjne"
+    ]
+   }
+  }
+ },
+ "kursanci": [
+  {
+   "id": "ID_001",
+   "imie": "Anna",
+   "litery": "Ko",
+   "kategoria": "staly",
+   "status": "w_trakcie",
+   "aktywny": true,
+   "saldo_przed": 0,
+   "dodatkowe_przed": 0,
+   "dostepnosc": {
+    "0": [
+     [
+      900,
+      1200
+     ]
+    ],
+    "2": [
+     [
+      900,
+      1200
+     ]
+    ],
+    "4": [
+     [
+      480,
+      720
+     ]
+    ]
+   },
+   "wyjatki": [],
+   "preferencje": "",
+   "oznaczenia": {
+    "1.1": [
+     [
+      "J_0001",
+      "V"
+     ],
+     [
+      "J_0002",
+      "V"
+     ]
+    ],
+    "2.1": [
+     [
+      "J_0001",
+      "X"
+     ],
+     [
+      "J_0002",
+      "V"
+     ]
+    ],
+    "7.1": [
+     [
+      "J_0002",
+      "X"
+     ]
+    ]
+   },
+   "miejsca": {
+    "Plac manewrowy": [
+     "J_0001"
+    ],
+    "Centrum": [],
+    "Obwodnica": []
+   },
+   "teoria": {
+    "Pierwszeństwo": true,
+    "Znaki poziome": false,
+    "Hamowanie awaryjne": false
+   },
+   "uwagi": "",
+   "teoriaJ": {
+    "Pierwszeństwo": "J_0002"
+   }
+  },
+  {
+   "id": "ID_002",
+   "imie": "Bartek",
+   "litery": "Ma",
+   "kategoria": "staly",
+   "status": "w_trakcie",
+   "aktywny": true,
+   "saldo_przed": 12,
+   "dodatkowe_przed": 0,
+   "dostepnosc": {
+    "1": [
+     [
+      480,
+      1200
+     ]
+    ],
+    "3": [
+     [
+      480,
+      1200
+     ]
+    ]
+   },
+   "wyjatki": [],
+   "preferencje": "",
+   "oznaczenia": {},
+   "miejsca": {
+    "Plac manewrowy": [],
+    "Centrum": [],
+    "Obwodnica": []
+   },
+   "teoria": {
+    "Pierwszeństwo": false,
+    "Znaki poziome": false,
+    "Hamowanie awaryjne": false
+   },
+   "uwagi": ""
+  },
+  {
+   "id": "ID_003",
+   "imie": "Celina",
+   "litery": "Wi",
+   "kategoria": "staly",
+   "status": "w_trakcie",
+   "aktywny": true,
+   "saldo_przed": 26,
+   "dodatkowe_przed": 0,
+   "dostepnosc": {
+    "0": [
+     [
+      480,
+      900
+     ]
+    ],
+    "1": [
+     [
+      480,
+      900
+     ]
+    ],
+    "2": [
+     [
+      480,
+      900
+     ]
+    ],
+    "3": [
+     [
+      480,
+      900
+     ]
+    ],
+    "4": [
+     [
+      480,
+      900
+     ]
+    ]
+   },
+   "wyjatki": [],
+   "preferencje": "",
+   "oznaczenia": {},
+   "miejsca": {
+    "Plac manewrowy": [],
+    "Centrum": [],
+    "Obwodnica": []
+   },
+   "teoria": {
+    "Pierwszeństwo": false,
+    "Znaki poziome": false,
+    "Hamowanie awaryjne": false
+   },
+   "uwagi": "",
+   "jazdy_inni": [
+    {
+     "id": 1,
+     "h": 1.5,
+     "notatka": "przykład – inny instruktor"
+    }
+   ]
+  },
+  {
+   "id": "ID_004",
+   "imie": "Darek",
+   "litery": "No",
+   "kategoria": "staly",
+   "status": "ukonczony",
+   "aktywny": true,
+   "saldo_przed": 30,
+   "dodatkowe_przed": 0,
+   "dostepnosc": {
+    "4": [
+     [
+      600,
+      1200
+     ]
+    ]
+   },
+   "wyjatki": [],
+   "preferencje": "",
+   "oznaczenia": {},
+   "miejsca": {
+    "Plac manewrowy": [],
+    "Centrum": [],
+    "Obwodnica": []
+   },
+   "teoria": {
+    "Pierwszeństwo": false,
+    "Znaki poziome": false,
+    "Hamowanie awaryjne": false
+   },
+   "uwagi": ""
+  },
+  {
+   "id": "OL_001",
+   "imie": "Ewa",
+   "litery": "Pa",
+   "kategoria": "OL",
+   "status": "OL",
+   "aktywny": true,
+   "saldo_przed": 0,
+   "dodatkowe_przed": 0,
+   "dostepnosc": null,
+   "wyjatki": [],
+   "preferencje": "",
+   "oznaczenia": {},
+   "miejsca": {
+    "Plac manewrowy": [],
+    "Centrum": [],
+    "Obwodnica": []
+   },
+   "teoria": {
+    "Pierwszeństwo": false,
+    "Znaki poziome": false,
+    "Hamowanie awaryjne": false
+   },
+   "uwagi": ""
+  }
+ ],
+ "jazdy": [
+  {
+   "id": "J_0001",
+   "data": "2026-11-16",
+   "od": 960,
+   "do": 1080,
+   "h": 2,
+   "kursant": "ID_001",
+   "rodzaj": "kurs",
+   "status": "odbyta",
+   "uwagi": ""
+  },
+  {
+   "id": "J_0002",
+   "data": "2026-11-18",
+   "od": 960,
+   "do": 1080,
+   "h": 2,
+   "kursant": "ID_001",
+   "rodzaj": "kurs",
+   "status": "odbyta",
+   "uwagi": ""
+  },
+  {
+   "id": "J_0003",
+   "data": "2026-11-23",
+   "od": 960,
+   "do": 1080,
+   "h": 2,
+   "kursant": "ID_001",
+   "rodzaj": "kurs",
+   "status": "odbyta",
+   "uwagi": ""
+  },
+  {
+   "id": "J_0004",
+   "data": "2026-12-02",
+   "od": 960,
+   "do": 1080,
+   "h": 2,
+   "kursant": "ID_001",
+   "rodzaj": "kurs",
+   "status": "czeka na kursanta",
+   "uwagi": ""
+  },
+  {
+   "id": "J_0005",
+   "data": "2026-11-17",
+   "od": 600,
+   "do": 720,
+   "h": 2,
+   "kursant": "ID_002",
+   "rodzaj": "kurs",
+   "status": "odbyta",
+   "uwagi": ""
+  },
+  {
+   "id": "J_0006",
+   "data": "2026-11-24",
+   "od": 600,
+   "do": 720,
+   "h": 2,
+   "kursant": "ID_002",
+   "rodzaj": "kurs",
+   "status": "zaplanowana",
+   "uwagi": ""
+  },
+  {
+   "id": "J_0007",
+   "data": "2026-12-01",
+   "od": 600,
+   "do": 720,
+   "h": 2,
+   "kursant": "ID_002",
+   "rodzaj": "kurs",
+   "status": "propozycja",
+   "uwagi": ""
+  },
+  {
+   "id": "J_0008",
+   "data": "2026-11-19",
+   "od": 480,
+   "do": 600,
+   "h": 2,
+   "kursant": "ID_003",
+   "rodzaj": "kurs",
+   "status": "odbyta",
+   "uwagi": ""
+  },
+  {
+   "id": "J_0009",
+   "data": "2026-11-25",
+   "od": 480,
+   "do": 600,
+   "h": 2,
+   "kursant": "ID_003",
+   "rodzaj": "kurs",
+   "status": "zaplanowana",
+   "uwagi": ""
+  },
+  {
+   "id": "J_0010",
+   "data": "2026-11-26",
+   "od": 480,
+   "do": 540,
+   "h": 1,
+   "kursant": "ID_003",
+   "rodzaj": "kurs",
+   "status": "odwołana",
+   "uwagi": ""
+  },
+  {
+   "id": "J_0011",
+   "data": "2026-11-20",
+   "od": 720,
+   "do": 840,
+   "h": 2,
+   "kursant": "ID_004",
+   "rodzaj": "dodatkowa",
+   "status": "odbyta",
+   "uwagi": "",
+   "platnosc": "gotowka",
+   "kwota": 200
+  },
+  {
+   "id": "J_0012",
+   "data": "2026-11-27",
+   "od": 720,
+   "do": 840,
+   "h": 2,
+   "kursant": "ID_004",
+   "rodzaj": "dodatkowa",
+   "status": "zaplanowana",
+   "uwagi": "",
+   "platnosc": "przelew"
+  },
+  {
+   "id": "J_0013",
+   "data": "2026-11-13",
+   "od": 840,
+   "do": 960,
+   "h": 2,
+   "kursant": "OL_001",
+   "rodzaj": "OL",
+   "status": "odbyta",
+   "uwagi": ""
+  }
+ ],
+ "koszty": [
+  {
+   "id": "KO_przyklad1",
+   "data": "2026-11-18",
+   "rodzaj": "Paliwo",
+   "kwota": 150,
+   "notatka": ""
+  }
+ ]
+}

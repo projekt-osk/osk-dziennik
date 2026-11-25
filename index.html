@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1a5fb4">
+<title>OSK Dziennik</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+  :root { --bg:#f5f7fa; --card:#fff; --txt:#1c2430; --muted:#5b6675; --blue:#1a5fb4; --green:#1d7a3a; --orange:#b45309; --red:#b42318; --line:#d5dbe3; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--txt); font:18px/1.45 system-ui, sans-serif; }
+  main { max-width:720px; margin:0 auto; padding:16px; }
+  header { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; }
+  h1 { font-size:26px; margin:0; }
+  .wersja { color:var(--muted); font-size:14px; }
+  .karta { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:14px; }
+  .stany { display:flex; gap:8px; flex-wrap:wrap; }
+  .znacznik { display:inline-block; padding:4px 12px; border-radius:999px; font-size:15px; font-weight:600; color:#fff; background:var(--muted); }
+  .z-ok { background:var(--green); } .z-warn { background:var(--orange); } .z-bad { background:var(--red); }
+  button { font:inherit; font-weight:600; min-height:52px; padding:10px 20px; border-radius:10px; border:2px solid var(--blue); background:var(--blue); color:#fff; cursor:pointer; }
+  button.jasny { background:#fff; color:var(--blue); }
+  button.groza { background:#fff; color:var(--red); border-color:var(--red); min-height:44px; padding:6px 14px; }
+  button:disabled { opacity:.5; }
+  input[type=text] { font:inherit; min-height:52px; padding:8px 12px; border:2px solid var(--line); border-radius:10px; width:100%; }
+  .wiersz { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .wiersz input { flex:1 1 220px; }
+  #uid { display:block; margin:10px 0; padding:12px; background:#eef3fb; border:2px dashed var(--blue); border-radius:10px; font:600 17px/1.4 ui-monospace, monospace; word-break:break-all; user-select:all; }
+  #blad { display:none; margin-top:14px; padding:14px; border-radius:10px; background:#fdecea; color:var(--red); border:1px solid var(--red); font-weight:600; }
+  ul { list-style:none; margin:0; padding:0; }
+  li { display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; padding:12px 0; border-top:1px solid var(--line); }
+  li:first-child { border-top:0; }
+  .tekst { flex:1 1 200px; word-break:break-word; }
+  .meta { color:var(--muted); font-size:13px; }
+  .ukryj { display:none !important; }
+  h2 { font-size:20px; margin:0 0 10px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>OSK Dziennik</h1>
+    <span class="wersja">Wersja <span id="wersja"></span> · prototyp E1 (test)</span>
+  </header>
+
+  <section class="karta">
+    <div class="stany">
+      <span id="st-siec" class="znacznik">sprawdzam sieć…</span>
+      <span id="st-cache" class="znacznik ukryj">dane z pamięci urządzenia</span>
+    </div>
+  </section>
+
+  <div id="blad" role="alert"></div>
+
+  <section id="blok-login" class="karta">
+    <h2>Logowanie</h2>
+    <button id="btn-login">Zaloguj przez Google</button>
+  </section>
+
+  <section id="blok-uid" class="karta ukryj">
+    <h2>Zalogowano</h2>
+    <div id="uzytkownik" class="meta"></div>
+    <strong>Twój uid (wklej go do reguł):</strong>
+    <code id="uid"></code>
+    <div class="wiersz">
+      <button id="btn-kopiuj">Kopiuj uid</button>
+      <button id="btn-wyloguj" class="jasny">Wyloguj</button>
+    </div>
+  </section>
+
+  <section id="blok-proby" class="karta ukryj">
+    <h2>Test zapisu i odczytu</h2>
+    <form id="form" class="wiersz" autocomplete="off">
+      <input id="tekst" type="text" placeholder="Wpisz dowolny tekst" required maxlength="200">
+      <button type="submit">Dodaj</button>
+    </form>
+    <ul id="lista"></ul>
+    <div id="pusto" class="meta">Brak wpisów.</div>
+  </section>
+</main>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

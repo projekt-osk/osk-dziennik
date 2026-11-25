@@ -99,9 +99,11 @@ const kopiaCzekaj=ms=>new Promise(r=>setTimeout(r,ms));
 // Zapisuje dwa pliki (JSON i Excel). Zwraca {xlsx:true|false}; błąd JSON rzuca. Nie dotyka bazy (działa offline).
 async function kopiaPliki(przed){
   const kol=kopiaDane(),d=realToday(),baza="osk-kopia-"+d+(przed?"-przed-przywroceniem":"");
+  // Excel przygotowany PRZED pierwszym pobraniem: na tablecie (Chrome Android) drugie pobranie po dłuższym czekaniu bywa blokowane.
+  let X=null,b=null;try{X=window.XLSX||await kopiaXlsxLib();b=kopiaXlsxBajty(X,kol)}catch(e){console.warn("kopia xlsx",e)}
   pobierzPlik(new Blob([kopiaJson(kol)],{type:"application/json"}),baza+".json");
   let xl=true;
-  try{const X=await kopiaXlsxLib(),b=kopiaXlsxBajty(X,kol);await kopiaCzekaj(700);
+  try{if(!b)throw new Error("xlsx: brak biblioteki");await kopiaCzekaj(400);
     pobierzPlik(new Blob([b],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),baza+".xlsx")}
   catch(e){console.warn("kopia xlsx",e);xl=false}
   return{xlsx:xl}}
@@ -162,3 +164,6 @@ async function kopiaPrzywroc(){
     R.done=kopiaLiczby(kol);R.busy=null;R.kol=null;S.restArm=false;render();
     toast(`Przywrócono: kursanci ${R.done.kursanci}, jazdy ${R.done.jazdy}, koszty ${R.done.koszty}, jazdy z innym instruktorem ${R.done.inni}`)}
   catch(e){R.busy=null;R.err="Przywracanie przerwane ("+(e&&(e.code||e.message)||e)+"). Dane mogą być przywrócone tylko częściowo – wybierz plik kopii i spróbuj ponownie."+(R.przed?" Kopia poprzedniego stanu jest w Pobranych.":"");S.restArm=false;render()}}
+
+// Biblioteka Excel wczytywana z wyprzedzeniem (z cache service workera), żeby kopia nie czekała na nią po kliknięciu.
+setTimeout(()=>{kopiaXlsxLib().catch(()=>{})},3000);

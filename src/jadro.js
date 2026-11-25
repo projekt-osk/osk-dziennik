@@ -1,7 +1,7 @@
 "use strict";
 /* jadro.js – źródło w src/ (repo osk-dziennik); wersje prod i test buduje narzedzia/buduj.mjs */
 /* ============================================================ stałe */
-const BUILD="F-2026.11.25-3"; // numer wersji – podawany w zgłoszeniach QA
+const BUILD="F-2026.11.25-4"; // numer wersji – podawany w zgłoszeniach QA
 const DNI=["Poniedziałek","Wtorek","Środa","Czwartek","Piątek","Sobota","Niedziela"];
 const DN=["Pn","Wt","Śr","Cz","Pt","Sb","Nd"];
 const PRZERWA_OD="2026-12-01";            // przerwa po 3. jeździe obowiązuje od grudnia

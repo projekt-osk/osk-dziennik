@@ -186,15 +186,4 @@ function kontoHtml(){const u=S.user;if(!u)return "";
   return `<section class="card"><h3>Konto</h3><p class="small muted">Zalogowano: <b>${esc(u.nazwa||u.email||"konto Google")}</b>${u.nazwa&&u.email?" · "+esc(u.email):""}${S.db&&S.db.srodowisko==="test"?" · wersja testowa":""}</p>
   <label class="field"><span class="lbl">uid (do reguł Firestore)</span><input type="text" id="uid-pole" readonly value="${esc(u.uid)}" style="font-family:ui-monospace,monospace"></label>
   <div class="row" style="margin-top:10px"><button class="btn" data-act="kopiujUid">Kopiuj uid</button><button class="btn${S.wylArm?" warnb":""}" data-act="wyloguj">${S.wylArm?"Dotknij ponownie, aby wylogować":"Wyloguj"}</button></div></section>`}
-async function doImport(){
-  const D=S.imp.data,db=S.db,ops=[];
-  D.kursanci.forEach(k=>ops.push(["kursanci",k.id,k]));D.jazdy.forEach(j=>ops.push(["jazdy",j.id,j]));
-  ops.push(["ustawienia","instruktor",D.instruktor]);ops.push(["ustawienia","meta",{nastepne_id:D.nastepne_id,slowniki:D.slowniki,meta:D.meta}]);
-  const keepK=new Set(D.kursanci.map(k=>k.id)),keepJ=new Set(D.jazdy.map(j=>j.id));
-  const dels=[...Object.keys(S.K).filter(id=>!keepK.has(id)).map(id=>["kursanci",id]),...Object.keys(S.J).filter(id=>!keepJ.has(id)).map(id=>["jazdy",id])];
-  S.imp.total=ops.length+dels.length;S.imp.prog=0;render();
-  try{for(const[c,id,d]of ops){await db.set(c,id,d);S.imp.prog++;if(S.imp.prog%10===0)render()}
-    for(const[c,id]of dels){await db.del(c,id);S.imp.prog++}
-    S.imp=null;toast("Dane wczytane");render()}
-  catch(e){S.imp={err:"Wczytywanie przerwane ("+(e?.code||e?.message||e)+"). Spróbuj ponownie."};render()}}
 

@@ -389,6 +389,8 @@ table.rejt{width:100%;border-collapse:collapse;font-size:14px}
 .rejt tr.we td.dn,.rejt tr.we td.dd{color:var(--muted)}
 .rejt th.d2{width:15%}
 .rejt tfoot td{font-weight:700}
+.rejk{overflow-x:auto}
+@media(max-width:420px){.rejk{padding:10px 6px}.rejt{table-layout:fixed}.rejt th,.rejt td{padding:3px 2px}.rejt th{font-size:11px;overflow-wrap:anywhere}.rejt td.dn,.rejt td.dd{width:13%}}
 @media print{@page{size:A4;margin:12mm}html,body{background:#fff!important;color:#000}.top,.bnav,#toast,#sheet{display:none!important}main.wrap{padding:0}body.pr-rej main.wrap>*:not(.rejcard),body.pr-tyd main.wrap>*:not(.tyd){display:none!important}.rejcard,.tyd{box-shadow:none;padding:0}.noprint{display:none!important}.rejk{border:0;padding:0}body.pr-tyd .tydh{pointer-events:none}.tyd .tyw{overflow:visible}.tyadd,.tyx{display:none!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 /* P-033 pkt 4: wybór płatności – przyciski min. 40 px */
 .seg-big button{min-height:44px}

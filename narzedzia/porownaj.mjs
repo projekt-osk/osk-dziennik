@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 const SRC = join(dirname(fileURLToPath(import.meta.url)), "..", "src");
-const ctx = vm.createContext({ console });
+const ctx = vm.createContext({ console, navigator: { userAgent: "node" }, window: {}, document: {}, setTimeout: () => 0 });
 vm.runInContext(readFileSync(join(SRC, "jadro.js"), "utf8") + "\n" + readFileSync(join(SRC, "kopia.js"), "utf8") +
   "\n;this.__api={S,kopiaNorm,kopiaLiczby,saldo,przedH,innych,dodat,gotSuma,jOf};", ctx, { filename: "src" });
 const api = ctx.__api;

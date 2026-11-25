@@ -48,7 +48,7 @@ const fb = {
   // Partia zapisów (przywracanie z kopii): ops = [["set", kolekcja, id, dane] | ["del", kolekcja, id]], max. 500 w jednej partii.
   batch: (ops) => { const b = writeBatch(db); ops.forEach(([r, c, id, data]) => r === "set" ? b.set(doc(db, c, id), enc(data, false)) : b.delete(doc(db, c, id))); return b.commit(); },
   // Nasłuch kolekcji; ok dostaje {docs:[{id,data()}], metadata}. Zwraca funkcję wyłączającą.
-  listen: (c, ok, fail) => onSnapshot(collection(db, c), (s) => ok({
+  listen: (c, ok, fail) => onSnapshot(collection(db, c), { includeMetadataChanges: true }, (s) => ok({
     metadata: s.metadata,
     docs: s.docs.map((d) => ({ id: d.id, data: () => dec(d.data()) }))
   }), fail),

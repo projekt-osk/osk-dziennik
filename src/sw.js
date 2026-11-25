@@ -4,7 +4,8 @@ const BUILD = "{{BUILD}}";
 const PREFIX = "osk-{{SRODOWISKO}}-";
 const CACHE = PREFIX + BUILD;
 const SDK = "https://www.gstatic.com/firebasejs/10.14.1/";
-const PLIKI = [/*PLIKI*/].concat([SDK + "firebase-app.js", SDK + "firebase-auth.js", SDK + "firebase-firestore.js"]);
+const XLSX = "{{XLSX}}"; // biblioteka Excel (kopia zapasowa) – w cache, żeby „Pobierz kopię” działało bez internetu
+const PLIKI = [/*PLIKI*/].concat([SDK + "firebase-app.js", SDK + "firebase-auth.js", SDK + "firebase-firestore.js", XLSX]);
 const POMIN = "{{POMIN}}"; // ścieżki innej wersji (test) pod tym samym adresem – nie obsługujemy
 
 self.addEventListener("install", (e) => {
@@ -32,7 +33,8 @@ self.addEventListener("fetch", (e) => {
   if (swoje && POMIN && url.pathname.startsWith(new URL(POMIN, self.registration.scope).pathname)) return;
   const sdk = url.origin === "https://www.gstatic.com" && url.pathname.startsWith("/firebasejs/");
   const fonty = url.origin === "https://fonts.googleapis.com" || url.origin === "https://fonts.gstatic.com";
-  if (!swoje && !sdk && !fonty) return; // Firestore i logowanie obsługuje SDK (własna pamięć offline)
+  const xlsx = req.url === XLSX;
+  if (!swoje && !sdk && !fonty && !xlsx) return; // Firestore i logowanie obsługuje SDK (własna pamięć offline)
   e.respondWith(
     caches.match(req, { ignoreSearch: swoje }).then((hit) => {
       if (hit) return hit;

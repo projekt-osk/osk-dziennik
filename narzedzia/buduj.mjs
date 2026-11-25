@@ -37,8 +37,9 @@ const ENV = {
 
 const TEST_BAR = '<div class="testbar" style="background:#b42318;color:#fff;text-align:center;font:700 14px/1.2 sans-serif;letter-spacing:.06em;padding:5px 8px">WERSJA TESTOWA – dane zmyślone</div>' +
   '<style>.ktabs{top:calc(env(safe-area-inset-top,0px) + 84px)!important}</style>';
+const XLSX_URL = /const XLSX_URL="([^"]+)"/.exec(readFileSync(join(SRC, "kopia.js"), "utf8"))[1]; // jedno miejsce: kopia.js → także cache sw.js
 const STATYCZNE = ["style.css", "jadro.js", "baza.js", "widoki-karta.js", "widoki-ekrany.js", "tydzien-pdf.js",
-  "tryb-generator.js", "wiadomosci-arkusz.js", "zdarzenia.js", "firebase.js", "icon.svg", "icon-192.png", "icon-512.png"];
+  "tryb-generator.js", "wiadomosci-arkusz.js", "kopia.js", "zdarzenia.js", "firebase.js", "icon.svg", "icon-192.png", "icon-512.png"];
 
 for (const [nazwa, e] of Object.entries(ENV)) {
   const test = nazwa === "test";
@@ -56,7 +57,7 @@ for (const [nazwa, e] of Object.entries(ENV)) {
   writeFileSync(join(e.out, "manifest.webmanifest"), sub(readFileSync(join(SRC, "manifest.webmanifest"), "utf8")));
   const cache = ["./", "./index.html", "./konfig.js", "./manifest.webmanifest", ...pliki.map((f) => "./" + f)];
   writeFileSync(join(e.out, "sw.js"), sub(readFileSync(join(SRC, "sw.js"), "utf8"))
-    .replace("[/*PLIKI*/]", JSON.stringify(cache)).replace("{{POMIN}}", e.pomin));
+    .replace("[/*PLIKI*/]", JSON.stringify(cache)).replace("{{XLSX}}", XLSX_URL).replace("{{POMIN}}", e.pomin));
   const left = readFileSync(join(e.out, "index.html"), "utf8").match(/\{\{[A-Z_]+\}\}/);
   if (left) throw new Error(nazwa + ": nie podmieniono " + left[0]);
   console.log(`${nazwa}: ${e.out.replace(ROOT, ".") || "."} – BUILD ${BUILD}, plików: ${pliki.length + 4}`);

@@ -1,10 +1,11 @@
 // Service worker OSK (test) – cache plików aplikacji, praca bez sieci.
 // Nowa wersja (inny BUILD) instaluje się w tle przy otwarciu i obowiązuje od kolejnego otwarcia aplikacji.
-const BUILD = "F-2026.11.25-1";
+const BUILD = "F-2026.11.25-2";
 const PREFIX = "osk-test-";
 const CACHE = PREFIX + BUILD;
 const SDK = "https://www.gstatic.com/firebasejs/10.14.1/";
-const PLIKI = ["./","./index.html","./konfig.js","./manifest.webmanifest","./style.css","./jadro.js","./baza.js","./widoki-karta.js","./widoki-ekrany.js","./tydzien-pdf.js","./tryb-generator.js","./wiadomosci-arkusz.js","./zdarzenia.js","./firebase.js","./icon.svg","./icon-192.png","./icon-512.png","./przyklad.js"].concat([SDK + "firebase-app.js", SDK + "firebase-auth.js", SDK + "firebase-firestore.js"]);
+const XLSX = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"; // biblioteka Excel (kopia zapasowa) – w cache, żeby „Pobierz kopię” działało bez internetu
+const PLIKI = ["./","./index.html","./konfig.js","./manifest.webmanifest","./style.css","./jadro.js","./baza.js","./widoki-karta.js","./widoki-ekrany.js","./tydzien-pdf.js","./tryb-generator.js","./wiadomosci-arkusz.js","./kopia.js","./zdarzenia.js","./firebase.js","./icon.svg","./icon-192.png","./icon-512.png","./przyklad.js"].concat([SDK + "firebase-app.js", SDK + "firebase-auth.js", SDK + "firebase-firestore.js", XLSX]);
 const POMIN = ""; // ścieżki innej wersji (test) pod tym samym adresem – nie obsługujemy
 
 self.addEventListener("install", (e) => {
@@ -32,7 +33,8 @@ self.addEventListener("fetch", (e) => {
   if (swoje && POMIN && url.pathname.startsWith(new URL(POMIN, self.registration.scope).pathname)) return;
   const sdk = url.origin === "https://www.gstatic.com" && url.pathname.startsWith("/firebasejs/");
   const fonty = url.origin === "https://fonts.googleapis.com" || url.origin === "https://fonts.gstatic.com";
-  if (!swoje && !sdk && !fonty) return; // Firestore i logowanie obsługuje SDK (własna pamięć offline)
+  const xlsx = req.url === XLSX;
+  if (!swoje && !sdk && !fonty && !xlsx) return; // Firestore i logowanie obsługuje SDK (własna pamięć offline)
   e.respondWith(
     caches.match(req, { ignoreSearch: swoje }).then((hit) => {
       if (hit) return hit;

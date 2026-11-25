@@ -1,6 +1,6 @@
 /* firebase.js – logowanie Google i warstwa danych Firestore (trwała pamięć offline, wiele kart).
    Konfigurację (prod/test) podaje konfig.js generowany przez narzedzia/buduj.mjs.
-   Udostępnia window.oskFb: set, del, listen, onUser, login, logout, user. Zdarzenie „osk-fb” = gotowe. */
+   Udostępnia window.oskFb: set, del, batch, listen, onUser, login, logout, user. Zdarzenie „osk-fb” = gotowe. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {
   getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
@@ -8,7 +8,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-  collection, doc, setDoc, deleteDoc, onSnapshot
+  collection, doc, setDoc, deleteDoc, onSnapshot, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const K = window.OSK_KONFIG;
@@ -45,6 +45,8 @@ const fb = {
   // (także po zamknięciu karty) i wysyła się sama. Obietnica kończy się po potwierdzeniu przez serwer albo błędem.
   set: (c, id, data) => setDoc(doc(db, c, id), enc(data, false)),
   del: (c, id) => deleteDoc(doc(db, c, id)),
+  // Partia zapisów (przywracanie z kopii): ops = [["set", kolekcja, id, dane] | ["del", kolekcja, id]], max. 500 w jednej partii.
+  batch: (ops) => { const b = writeBatch(db); ops.forEach(([r, c, id, data]) => r === "set" ? b.set(doc(db, c, id), enc(data, false)) : b.delete(doc(db, c, id))); return b.commit(); },
   // Nasłuch kolekcji; ok dostaje {docs:[{id,data()}], metadata}. Zwraca funkcję wyłączającą.
   listen: (c, ok, fail) => onSnapshot(collection(db, c), (s) => ok({
     metadata: s.metadata,

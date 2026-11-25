@@ -176,7 +176,7 @@ function ustawHtml(){
   // P-027: sekcja „Dane aplikacji” (licznik + wczytywanie importu) usunięta – zasada „nigdy nie wczytywać importu”
   h+=`<section class="card"><h3>Jazdy dodatkowe – stawka</h3><label class="field"><span class="lbl">Stawka za godzinę (zł)</span><input type="text" inputmode="decimal" id="stawka" value="${I&&+I.stawka>0?esc(String(I.stawka).replace(".",",")):""}" data-defer data-ch="stawka" autocomplete="off" style="max-width:160px"></label><p class="small muted">Podpowiada kwotę przy płatności gotówką w oknie jazdy dodatkowej (godziny × stawka). Puste pole = bez podpowiedzi.</p></section>`;
   h+=`<section class="card"><h3>Wolne terminy</h3><p class="small muted">Wolne okna w tygodniu lub miesiącu – tekst do skopiowania dla innego instruktora (bez danych kursantów).</p><button class="btn" data-act="wolne">Wolne terminy ›</button>`;
-  h+=`</section>`+kontoHtml();
+  h+=`</section>`+kopiaHtml()+kontoHtml();
   if(typeof przykladHtml==="function")h+=przykladHtml();
   h+=`<section class="card"><h3>Wersja aplikacji</h3><p class="small muted">Numer wersji: <b class="num">${BUILD}</b> – podawaj go przy zgłaszaniu błędów.</p>`;
   h+=`</section>`;

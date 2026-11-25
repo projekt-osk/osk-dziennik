@@ -57,7 +57,7 @@ function dzisHtml(){
   const js=Object.values(S.J).filter(j=>j.data===d&&j.status!=="odwołana").sort((a,b)=>a.od-b.od);
   const open=Object.values(S.J).filter(j=>otwSt(j.status)&&(j.data<d||(j.data===d&&j.od+j.h*60<=nm))).sort(cmpJ);
   const cur=js.find(j=>j.status!=="odbyta"&&j.od<=nm&&nm<j.od+j.h*60),nxt=js.find(j=>j.status!=="odbyta"&&j.od>nm),hero=cur||nxt;
-  let h=top;
+  let h=top+kopiaPasek();
   if(hero){const k=S.K[hero.kursant];
     h+=`<section class="hero"><div class="eyebrow">${cur?"Teraz":"Następna jazda"} · ${t2s(hero.od)}–${t2s(hero.od+hero.h*60)}</div><div class="big">${esc(lab(hero.kursant))}</div>
     <div class="meta">${hero.h} h${hero.rodzaj!=="kurs"?" · "+hero.rodzaj:""}${k&&k.kategoria!=="OL"&&k.status==="w_trakcie"?` · ma ${saldo(k)} z 30 h`:""}</div>

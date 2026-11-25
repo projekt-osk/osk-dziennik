@@ -133,6 +133,12 @@ const A={
   wyloguj(){if(!S.db)return;if(!S.wylArm){S.wylArm=true;render();setTimeout(()=>{if(S.wylArm){S.wylArm=false;render()}},4000);return}S.wylArm=false;S.db.logout().catch(e=>toast("Nie udało się wylogować ("+(e?.code||e)+")"))},
   kopiujUid(){const u=S.user;if(!u)return;kopiujTekst(u.uid,"uid-pole",()=>toast("Skopiowano uid"))},
   retryDb(){dbStart()},
+  // E2b: kopia zapasowa (kopia.js); eksport jest w PV_OK (nie zmienia danych kursantów), przywracanie nie
+  eksport(){kopiaPobierz()},
+  kopiaWybierz(){kopiaWybierz()},
+  kopiaAnuluj(){S.rest=null;S.restArm=false;render()},
+  kopiaZamknij(){S.rest=null;S.restArm=false;render()},
+  kopiaGo(){if(pvBlok())return;if(!S.restArm){S.restArm=true;render();setTimeout(()=>{if(S.restArm){S.restArm=false;render()}},4000);return}S.restArm=false;kopiaPrzywroc()},
   przyklad(){if(pvBlok()||typeof przykladWczytaj!=="function")return;if(Object.keys(S.K).length&&!S.przArm){S.przArm=true;render();setTimeout(()=>{if(S.przArm){S.przArm=false;render()}},4000);return}S.przArm=false;przykladWczytaj()},
   toggleOdw(el){S.odwOpen=S.odwOpen||{};S.odwOpen[el.dataset.d]=!S.odwOpen[el.dataset.d];render()},
   togglePastDays(){S.showPastDays=!S.showPastDays;render()},

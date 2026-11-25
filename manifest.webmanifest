@@ -1,11 +1,13 @@
 {
-  "name": "OSK Dziennik",
-  "short_name": "OSK Dziennik",
+  "id": "./",
+  "name": "OSK",
+  "short_name": "OSK",
+  "description": "Dziennik instruktora nauki jazdy",
   "lang": "pl",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f7fa",
+  "background_color": "#F4F5F7",
   "theme_color": "#1a5fb4",
   "icons": [
     { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },

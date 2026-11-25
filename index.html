@@ -2,84 +2,40 @@
 <html lang="pl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#1a5fb4">
-<title>OSK Dziennik</title>
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="./icon-192.png">
-<style>
-  :root { --bg:#f5f7fa; --card:#fff; --txt:#1c2430; --muted:#5b6675; --blue:#1a5fb4; --green:#1d7a3a; --orange:#b45309; --red:#b42318; --line:#d5dbe3; }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--txt); font:18px/1.45 system-ui, sans-serif; }
-  main { max-width:720px; margin:0 auto; padding:16px; }
-  header { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; }
-  h1 { font-size:26px; margin:0; }
-  .wersja { color:var(--muted); font-size:14px; }
-  .karta { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:14px; }
-  .stany { display:flex; gap:8px; flex-wrap:wrap; }
-  .znacznik { display:inline-block; padding:4px 12px; border-radius:999px; font-size:15px; font-weight:600; color:#fff; background:var(--muted); }
-  .z-ok { background:var(--green); } .z-warn { background:var(--orange); } .z-bad { background:var(--red); }
-  button { font:inherit; font-weight:600; min-height:52px; padding:10px 20px; border-radius:10px; border:2px solid var(--blue); background:var(--blue); color:#fff; cursor:pointer; }
-  button.jasny { background:#fff; color:var(--blue); }
-  button.groza { background:#fff; color:var(--red); border-color:var(--red); min-height:44px; padding:6px 14px; }
-  button:disabled { opacity:.5; }
-  input[type=text] { font:inherit; min-height:52px; padding:8px 12px; border:2px solid var(--line); border-radius:10px; width:100%; }
-  .wiersz { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-  .wiersz input { flex:1 1 220px; }
-  #uid { display:block; margin:10px 0; padding:12px; background:#eef3fb; border:2px dashed var(--blue); border-radius:10px; font:600 17px/1.4 ui-monospace, monospace; word-break:break-all; user-select:all; }
-  #blad { display:none; margin-top:14px; padding:14px; border-radius:10px; background:#fdecea; color:var(--red); border:1px solid var(--red); font-weight:600; }
-  ul { list-style:none; margin:0; padding:0; }
-  li { display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; padding:12px 0; border-top:1px solid var(--line); }
-  li:first-child { border-top:0; }
-  .tekst { flex:1 1 200px; word-break:break-word; }
-  .meta { color:var(--muted); font-size:13px; }
-  .ukryj { display:none !important; }
-  h2 { font-size:20px; margin:0 0 10px; }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OSK – dziennik instruktora</title>
+<meta name="theme-color" content="#F4F5F7">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<script>window.oskBlad=function(p){if(window.oskBladPokazany)return;window.oskBladPokazany=1;function pokaz(){var d=document.createElement("div");d.id="osk-blad";d.setAttribute("role","alert");d.style.cssText="position:fixed;left:0;right:0;top:0;z-index:99999;margin:16px;padding:16px;border:2px solid #b00020;border-radius:8px;font:16px/1.4 sans-serif;background:#fff;color:#000";d.textContent="Nie udało się wczytać pliku \u201E"+p+"\u201D. Sprawdź połączenie i odśwież stronę (na tablecie: zamknij kartę i otwórz ponownie).";document.body.appendChild(d)}if(document.body)pokaz();else document.addEventListener("DOMContentLoaded",pokaz)};</script>
+<link rel="stylesheet" href="style.css?v=F-2026.11.25-1" onerror="oskBlad('style.css')">
 </head>
 <body>
-<main>
-  <header>
-    <h1>OSK Dziennik</h1>
-    <span class="wersja">Wersja <span id="wersja"></span> · prototyp E1 (test)</span>
-  </header>
+<header class="top"><div class="wrap" id="topbar"></div></header>
+<main class="wrap" id="view"><div class="empty">Łączę z bazą danych…</div></main>
+<nav class="bnav" aria-label="Widoki"><div class="wrap">
+  <button type="button" data-act="tab" data-v="dzis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Dziś</button>
+  <button type="button" data-act="tab" data-v="grafik"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Grafik</button>
+  <button type="button" data-act="tab" data-v="kursanci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.8.7 3 2.5 3.5 5.2"/></svg>Kursanci</button>
+  <button type="button" data-act="tab" data-v="ustawienia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Więcej</button>
+</div></nav>
+<div id="sheet" hidden></div>
+<div id="toast" role="status" hidden></div>
 
-  <section class="karta">
-    <div class="stany">
-      <span id="st-siec" class="znacznik">sprawdzam sieć…</span>
-      <span id="st-cache" class="znacznik ukryj">dane z pamięci urządzenia</span>
-    </div>
-  </section>
-
-  <div id="blad" role="alert"></div>
-
-  <section id="blok-login" class="karta">
-    <h2>Logowanie</h2>
-    <button id="btn-login">Zaloguj przez Google</button>
-  </section>
-
-  <section id="blok-uid" class="karta ukryj">
-    <h2>Zalogowano</h2>
-    <div id="uzytkownik" class="meta"></div>
-    <strong>Twój uid (wklej go do reguł):</strong>
-    <code id="uid"></code>
-    <div class="wiersz">
-      <button id="btn-kopiuj">Kopiuj uid</button>
-      <button id="btn-wyloguj" class="jasny">Wyloguj</button>
-    </div>
-  </section>
-
-  <section id="blok-proby" class="karta ukryj">
-    <h2>Test zapisu i odczytu</h2>
-    <form id="form" class="wiersz" autocomplete="off">
-      <input id="tekst" type="text" placeholder="Wpisz dowolny tekst" required maxlength="200">
-      <button type="submit">Dodaj</button>
-    </form>
-    <ul id="lista"></ul>
-    <div id="pusto" class="meta">Brak wpisów.</div>
-  </section>
-</main>
-<script type="module" src="./app.js"></script>
+<script src="konfig.js?v=F-2026.11.25-1" onerror="oskBlad('konfig.js')"></script>
+<script src="jadro.js?v=F-2026.11.25-1" onerror="oskBlad('jadro.js')"></script>
+<script src="baza.js?v=F-2026.11.25-1" onerror="oskBlad('baza.js')"></script>
+<script src="widoki-karta.js?v=F-2026.11.25-1" onerror="oskBlad('widoki-karta.js')"></script>
+<script src="widoki-ekrany.js?v=F-2026.11.25-1" onerror="oskBlad('widoki-ekrany.js')"></script>
+<script src="tydzien-pdf.js?v=F-2026.11.25-1" onerror="oskBlad('tydzien-pdf.js')"></script>
+<script src="tryb-generator.js?v=F-2026.11.25-1" onerror="oskBlad('tryb-generator.js')"></script>
+<script src="wiadomosci-arkusz.js?v=F-2026.11.25-1" onerror="oskBlad('wiadomosci-arkusz.js')"></script>
+<script src="zdarzenia.js?v=F-2026.11.25-1" onerror="oskBlad('zdarzenia.js')"></script>
+<script type="module" src="firebase.js?v=F-2026.11.25-1" onerror="oskBlad('firebase.js')"></script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(e){console.warn("SW",e)})});</script>
 </body>
 </html>

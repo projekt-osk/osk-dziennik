@@ -9,7 +9,7 @@ function render(){
   const navV=S.view==="karta"?"kursanci":S.view==="wolne"?"ustawienia":S.view;
   const wide=S.view==="wiad"||S.view==="wolne";document.getElementById("topbar").classList.toggle("wide",wide);document.getElementById("view").classList.toggle("wide",wide);
   document.querySelectorAll(".bnav button").forEach(b=>b.setAttribute("aria-current",b.dataset.v===navV?"page":"false"));
-  const wyl=S.auth!=="in";document.body.classList.toggle("wylogowany",wyl);
+  const wyl=S.auth!=="in";document.body.classList.toggle("wylogowany",wyl||(!!S.err&&String(S.err).includes("permission-denied")));
   document.getElementById("topbar").innerHTML=wyl?`<div class="tt"><h1>Dziennik instruktora</h1></div>`:topHtml();
   const v=document.getElementById("view");
   let h="";

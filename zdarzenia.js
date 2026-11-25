@@ -126,7 +126,6 @@ const A={
   quick(el){commitDraft(el.dataset.s)},
   cancelJ(){S.draft.status="odwołana";document.getElementById("d-s").value="odwołana";const u=document.getElementById("d-u");u.placeholder="Powód odwołania";u.focus();updWarn();toast("Wpisz powód i zapisz")},
   delJ(){if(!S.delArm){S.delArm=true;drawSheet();return}const id=S.draft.id,kid=S.J[id]?.kursant;delete S.J[id];rm("jazdy",id);oczyscPoJazdach([id]);closeSheet();render();if(kid)syncStatus(kid);toast("Jazda usunięta")},
-  impGo(){doImport()},
   impCancel(){S.imp=null;render()},
   // F-2026.11.25: konto Google i baza Firestore
   zaloguj(){if(!S.db)return;S.loginErr=null;render();S.db.login().catch(e=>{const c=e?.code||"";S.loginErr=c.includes("popup-closed")||c.includes("cancelled-popup")?"Logowanie przerwane.":c==="auth/network-request-failed"?"Brak sieci – logowanie wymaga internetu.":c==="auth/unauthorized-domain"?"Ta domena nie jest dopuszczona w Firebase (Authentication → Settings → Authorized domains).":"Nie udało się zalogować ("+(c||e?.message||e)+").";render()})},

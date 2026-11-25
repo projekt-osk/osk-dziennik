@@ -135,6 +135,7 @@ const A={
   retryDb(){dbStart()},
   // E2b: kopia zapasowa (kopia.js); eksport jest w PV_OK (nie zmienia danych kursantów), przywracanie nie
   eksport(){kopiaPobierz()},
+  kopiaXl(){kopiaXlPobierz()},
   kopiaWybierz(){kopiaWybierz()},
   kopiaAnuluj(){S.rest=null;S.restArm=false;render()},
   kopiaZamknij(){S.rest=null;S.restArm=false;render()},
@@ -156,7 +157,7 @@ function winMut(ctx,fn){
 function winAdd(w){const{ctx,d}=S.addWin;S.addWin=null;winMut(ctx,t=>{const l=(t[String(d)]||[]).slice();if(w[0]===0&&w[1]===1440)t[String(d)]=[w];else{l.push(w);l.sort((a,b)=>a[0]-b[0]);const m=[];for(const x of l){const p=m[m.length-1];if(p&&x[0]<=p[1])p[1]=Math.max(p[1],x[1]);else m.push([x[0],x[1]])}t[String(d)]=m}})}  // P-023 pkt 1
 
 // Akcje dozwolone w Podglądzie (nie zmieniają danych); każda inna pokazuje PV_MSG.
-const PV_OK=new Set(["tab","filter","openK","back","ktab","togglePast","toggleDost","toggleKset","pv","tf","week","pickDay","weekToday","openJ","closeSheet","toggleOdw","togglePastDays","genToggle","wiad","wiadBack","kopiuj","wolne","wtBack","wtTyp","wtNav","wtKopiuj","dur","toggleSmsU","kopiujU","platnosc","gotToggle","gotMon","cancelNewK","addWinCancel","addExCancel","impCancel","zaloguj","wyloguj","kopiujUid","retryDb","eksport","tydToggle","weToggle","kosztCancel","kosztRodz","rejNav","rejPdf","rejToggle","tydPdf"]);
+const PV_OK=new Set(["tab","filter","openK","back","ktab","togglePast","toggleDost","toggleKset","pv","tf","week","pickDay","weekToday","openJ","closeSheet","toggleOdw","togglePastDays","genToggle","wiad","wiadBack","kopiuj","wolne","wtBack","wtTyp","wtNav","wtKopiuj","dur","toggleSmsU","kopiujU","platnosc","gotToggle","gotMon","cancelNewK","addWinCancel","addExCancel","impCancel","zaloguj","wyloguj","kopiujUid","retryDb","eksport","kopiaXl","tydToggle","weToggle","kosztCancel","kosztRodz","rejNav","rejPdf","rejToggle","tydPdf"]);
 const PV_OK_CH=new Set(["mj","pvt","pvd","tj","g-od","g-do","c-od","c-do","c-k","nk-kat","ex-typ"]);
 // BUG-020: drugie dotknięcie w to samo miejsce w ciągu 450 ms (albo dblclick) jest ignorowane – po przerysowaniu trafiłoby w inny przycisk.
 let lastTap={t:0,x:0,y:0};

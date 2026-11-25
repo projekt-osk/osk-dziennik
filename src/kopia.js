@@ -87,6 +87,7 @@ function kopiaJson(kol){
 
 /* ---------------------------------------------------------- przeglądarka: pobieranie */
 let xlsxProm=null;
+const KOPIA_ANDROID=/Android/i.test(navigator.userAgent||"");
 function kopiaXlsxLib(){
   if(window.XLSX)return Promise.resolve(window.XLSX);
   if(xlsxProm)return xlsxProm;
@@ -102,6 +103,8 @@ async function kopiaPliki(przed){
   // Excel przygotowany PRZED pierwszym pobraniem: na tablecie (Chrome Android) drugie pobranie po dłuższym czekaniu bywa blokowane.
   let X=null,b=null;try{X=window.XLSX||await kopiaXlsxLib();b=kopiaXlsxBajty(X,kol)}catch(e){console.warn("kopia xlsx",e)}
   pobierzPlik(new Blob([kopiaJson(kol)],{type:"application/json"}),baza+".json");
+  // Android (Chrome pyta o każdy plik i drugie pobranie przepada): Excel osobnym dotknięciem „Pobierz Excel”; przed przywróceniem wystarczy JSON.
+  if(KOPIA_ANDROID){if(b&&!przed){S.kopiaXl={blob:new Blob([b],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),nazwa:baza+".xlsx"};return{xlsx:"czeka"}}return{xlsx:!!b&&przed?"pominiety":false}}
   let xl=true;
   try{if(!b)throw new Error("xlsx: brak biblioteki");await kopiaCzekaj(400);
     pobierzPlik(new Blob([b],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),baza+".xlsx")}
@@ -111,18 +114,20 @@ async function kopiaPobierz(){
   if(S.kopiaBusy)return;S.kopiaBusy=true;
   try{const r=await kopiaPliki(false);
     if(!pvOn()){const m=clone(S.META||{});m.ostatnia_kopia=realToday();S.META=m;put("ustawienia","meta",m)}  // data kopii synchronizuje się między urządzeniami
-    toast(r.xlsx?"Kopia pobrana: dwa pliki (Excel i JSON) są w Pobranych":"Pobrano plik JSON z kopią. Excel się nie zrobił (brak biblioteki) – spróbuj ponownie przy połączeniu z internetem.")}
+    toast(r.xlsx==="czeka"?"Pobrano plik JSON. Teraz dotknij „Pobierz Excel”, aby pobrać drugi plik.":r.xlsx?"Kopia pobrana: dwa pliki (Excel i JSON) są w Pobranych":"Pobrano plik JSON z kopią. Excel się nie zrobił (brak biblioteki) – spróbuj ponownie przy połączeniu z internetem.")}
   catch(e){toast("Nie udało się pobrać kopii ("+(e&&e.message||e)+")")}
   finally{S.kopiaBusy=false;render()}}
 
 /* ---------------------------------------------------------- ekrany */
+function kopiaXlBtn(){return S.kopiaXl?`<button class="btn pri" data-act="kopiaXl">Pobierz Excel</button>`:""}
 function kopiaPasek(){
+  if(S.kopiaXl)return `<div class="banner kopbar" style="display:flex;align-items:center;gap:12px"><span class="grow"><b>Kopia: JSON pobrany</b><br><span class="small">Pobierz jeszcze plik Excel (do czytania).</span></span>${kopiaXlBtn()}</div>`;
   if(!kopiaPotrzebna())return "";const n=kopiaDni();
   return `<div class="banner kopbar" style="display:flex;align-items:center;gap:12px"><span class="grow"><b>Zrób kopię</b><br><span class="small">${n===null?"Nie zrobiono jeszcze kopii danych.":"Ostatnia kopia: "+kopiaDniTxt(n)+" ("+fdy(S.META.ostatnia_kopia)+")."}</span></span><button class="btn" data-act="eksport">Zrób kopię</button></div>`}
 function kopiaHtml(){
   const n=kopiaDni(),R=S.rest;
   let h=`<section class="card"><h3>Kopia zapasowa</h3><p class="small muted">Ostatnia kopia: <b>${n===null?"brak":esc(fdy(S.META.ostatnia_kopia))+" ("+kopiaDniTxt(n)+")"}</b>. Pobiera dwa pliki: Excel (do czytania) i JSON (do przywracania). Działa też bez internetu.</p>
-  <div class="row" style="margin-top:10px"><button class="btn pri" data-act="eksport"${S.kopiaBusy?" disabled":""}>Pobierz kopię</button><button class="btn" data-act="kopiaWybierz"${R&&R.busy?" disabled":""}>Przywróć z kopii…</button></div>`;
+  <div class="row" style="margin-top:10px"><button class="btn pri" data-act="eksport"${S.kopiaBusy?" disabled":""}>Pobierz kopię</button>${kopiaXlBtn()}<button class="btn" data-act="kopiaWybierz"${R&&R.busy?" disabled":""}>Przywróć z kopii…</button></div>`;
   if(R){h+=`<div class="banner${R.done?" info":""}" style="margin-top:12px">`;
     if(R.busy)h+=`<b>${esc(R.busy)}</b><br><span class="small">Nie zamykaj aplikacji.</span>`;
     else if(R.done){const c=R.done;h+=`<b>Przywrócono dane z kopii.</b><br><span class="small">kursanci: ${c.kursanci} · jazdy: ${c.jazdy} · koszty: ${c.koszty} · jazdy z innym instruktorem: ${c.inni}</span>${R.przed?`<br><span class="small">Kopia poprzedniego stanu jest w Pobranych (pliki „…-przed-przywroceniem”).</span>`:""}<div class="row" style="margin-top:8px"><button class="btn sm" data-act="kopiaZamknij">OK</button></div>`}
@@ -167,3 +172,4 @@ async function kopiaPrzywroc(){
 
 // Biblioteka Excel wczytywana z wyprzedzeniem (z cache service workera), żeby kopia nie czekała na nią po kliknięciu.
 setTimeout(()=>{kopiaXlsxLib().catch(()=>{})},3000);
+function kopiaXlPobierz(){const x=S.kopiaXl;if(!x)return;S.kopiaXl=null;pobierzPlik(x.blob,x.nazwa);toast("Pobrano plik Excel");render()}

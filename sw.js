@@ -1,6 +1,6 @@
 // Service worker OSK (prod) – cache plików aplikacji, praca bez sieci.
 // Nowa wersja (inny BUILD) instaluje się w tle przy otwarciu i obowiązuje od kolejnego otwarcia aplikacji.
-const BUILD = "F-2026.11.25-4";
+const BUILD = "F-2026.11.25-5";
 const PREFIX = "osk-prod-";
 const CACHE = PREFIX + BUILD;
 const SDK = "https://www.gstatic.com/firebasejs/10.14.1/";

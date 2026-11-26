@@ -1,11 +1,11 @@
 // Service worker OSK (prod) – cache plików aplikacji, praca bez sieci.
 // Nowa wersja (inny BUILD) instaluje się w tle przy otwarciu i obowiązuje od kolejnego otwarcia aplikacji.
-const BUILD = "F-2026.11.25-7";
+const BUILD = "F-2026.11.26-3";
 const PREFIX = "osk-prod-";
 const CACHE = PREFIX + BUILD;
 const SDK = "https://www.gstatic.com/firebasejs/10.14.1/";
 const XLSX = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"; // biblioteka Excel (kopia zapasowa) – w cache, żeby „Pobierz kopię” działało bez internetu
-const PLIKI = ["./","./index.html","./konfig.js","./manifest.webmanifest","./style.css","./jadro.js","./baza.js","./widoki-karta.js","./widoki-ekrany.js","./tydzien-pdf.js","./tryb-generator.js","./wiadomosci-arkusz.js","./kopia.js","./zdarzenia.js","./firebase.js","./icon.svg","./icon-192.png","./icon-512.png"].concat([SDK + "firebase-app.js", SDK + "firebase-auth.js", SDK + "firebase-firestore.js", XLSX]);
+const PLIKI = ["./","./index.html","./konfig.js","./manifest.webmanifest","./style.css","./jadro.js","./baza.js","./widoki-karta.js","./widoki-ekrany.js","./tydzien-pdf.js","./tryb-generator.js","./wiadomosci-arkusz.js","./kopia.js","./zdarzenia.js","./firebase.js","./icon.svg","./icon-180.png","./icon-192.png","./icon-512.png"].concat([SDK + "firebase-app.js", SDK + "firebase-auth.js", SDK + "firebase-firestore.js", XLSX]);
 const POMIN = "test/"; // ścieżki innej wersji (test) pod tym samym adresem – nie obsługujemy
 
 self.addEventListener("install", (e) => {

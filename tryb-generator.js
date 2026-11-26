@@ -102,7 +102,7 @@ function adjSearch(fixed,mov,w0,w1,d){
       for(const s of [...c].sort((a,b)=>a-b)){
         if(s<w0||s+len>w1||occ.some(o=>s<o[1]&&o[0]<s+len)||!cover(L.win,s,s+len))continue;
         const v=dayViol([...occ,[s,s+len,true]].sort((a,b)=>a[0]-b[0]),d);
-        if(v.gapAdj===0){pick=s;break}}
+        if(v.gapAdj===0&&v.brk<=baseBrk){pick=s;break}}
       if(pick==null){ok=false;break}
       occ.push([pick,pick+len,true]);placed.push({L,od:pick})}
     if(!ok)continue;
@@ -138,9 +138,9 @@ function generuj(from,to){
   function newL(k,d,h){return{id:null,data:d,od:0,h,kursant:k.id,rodzaj:"kurs",status:"propozycja",uwagi:"",fixed:false,win:studWin(k,d)||[]}}
   const better=(a,b)=>{for(let i=0;i<a.length;i++){if(a[i]<b[i])return true;if(a[i]>b[i])return false}return false};
   // najlepsza jazda kursanta w danym dniu: standard 2 h (3 h, gdy domyka dzień do 10 h albo kończy kurs), potem najwcześniej
-  function bestIn(k,d,ext,dh){let best=null;const ds=durs(k,d);
+  function bestIn(k,d,ext,dh){let best=null;const ds=durs(k,d),w3=!!k.woli_3h&&ds.includes(3)&&ds.length>1; // P-039 pkt 3: „woli 3 h” – 3 h zawsze, gdy się mieści (durs już pilnuje 8 h i końcówki)
     for(const h of ds){if(dh!=null&&dh+h>10)continue;const L=newL(k,d,h);L.ext=!!ext;const r=tryDay(d,L,ext);if(!r)continue;
-      const pen=h===3&&ds.length>1&&!(dh!=null&&10-dh===3)?1:0,sc=[pen,r.start];if(!best||better(sc,best.sc))best={r,sc}}
+      const pen=w3?(h===3?0:1):h===3&&ds.length>1&&!(dh!=null&&10-dh===3)?1:0,sc=[pen,r.start];if(!best||better(sc,best.sc))best={r,sc}}
     return best}
   function place(k,days,ext){let best=null;
     for(const d of days){if(has(k,d))continue;const sw=studWin(k,d);if(!sw||!sw.length)continue;
@@ -191,7 +191,7 @@ function generuj(from,to){
       reset();mix=null;extOff=true;tydzien();extOff=false;wyb={sc:ocen(true),stan:all.slice()}}
     mix=null;all.length=0;wyb.stan.forEach(x=>all.push(x));
     // BUG-006: ostrzegamy tylko za tydzień, którego większość dni pracy jest w zakresie
-    if(days.length*2>pracy.length)for(const k of studs){const t=tgt(k),n=inW(k);if(t>0&&n===0)warns.push(`${lab(k.id)}: brak jazd w tygodniu ${fd(mon)}–${fd(sun)}`)}
+    if(days.length*2>pracy.length)for(const k of studs){const t=tgt(k),n=inW(k);if(t>0&&n===0&&ostrzTydz(k,mon))warns.push(`${lab(k.id)}: brak jazd w tygodniu ${fd(mon)}–${fd(sun)}`)}
   }
   // P-022: zabezpieczenie – propozycja nie może nachodzić na żadną nieodwołaną jazdę ani inną propozycję
   const created=[];all.filter(j=>!j.fixed).sort(cmpJ).forEach(L=>{const e=L.od+L.h*60;
@@ -211,14 +211,17 @@ function zapiszGen(res){if(pvBlok())return;
   if(res.created.length)bumpMeta("jazda",n-1);
   render()}
 const endOfMonth=s=>{const d=pISO(s);return iso(new Date(d.getFullYear(),d.getMonth()+1,0))};
-/* P-033 pkt 3: masowe usuwanie jazd „czeka na kursanta” (zakres dat + kursant; stan S.czFrom, S.czTo, S.czK, S.czDelArm) */
-function czekaZakres(){const all=Object.values(S.J).filter(j=>j.status===CZEKA);if(!all.length)return null;
+/* P-033 pkt 3 + P-039 pkt 2: masowe usuwanie jazd „propozycja” / „czeka na kursanta” (status + zakres dat + kursant; stan S.czSt, S.czFrom, S.czTo, S.czK, S.czDelArm) */
+const CZ_ST=[["propozycja","propozycja"],[CZEKA,"czeka na kursanta"]];
+function czekaZakres(){const ma=st=>Object.values(S.J).some(j=>j.status===st);if(!ma("propozycja")&&!ma(CZEKA))return null;
+  const st=ma(S.czSt||CZEKA)?(S.czSt||CZEKA):(S.czSt===CZEKA||!S.czSt?"propozycja":CZEKA),all=Object.values(S.J).filter(j=>j.status===st);
   const mx=all.reduce((m,j)=>j.data>m?j.data:m,""),od=S.czFrom||today(),dok=S.czTo||mx,ids=[...new Set(all.map(j=>j.kursant))].sort((a,b)=>lab(a).localeCompare(lab(b),"pl")),kid=ids.includes(S.czK)?S.czK:"";
-  return{od,do:dok,ids,kid,l:all.filter(j=>j.data>=od&&j.data<=dok&&(!kid||j.kursant===kid)).sort(cmpJ)}}
+  return{st,od,do:dok,ids,kid,l:all.filter(j=>j.data>=od&&j.data<=dok&&(!kid||j.kursant===kid)).sort(cmpJ)}}
 function czekaHtml(){const z=czekaZakres();if(!z)return "";const o=!!S.czOpen;
-  let h=`<div style="margin:10px 0 4px;padding-top:10px;border-top:1px solid var(--line)"><button class="btn ghost sm" data-act="czekaToggle" aria-expanded="${o}">${o?"▾":"▸"} Usuń jazdy czekające na kursanta</button>`;
+  let h=`<div style="margin:10px 0 4px;padding-top:10px;border-top:1px solid var(--line)"><button class="btn ghost sm" data-act="czekaToggle" aria-expanded="${o}">${o?"▾":"▸"} Usuń jazdy z zakresu (propozycje / czekające)</button>`;
   if(!o)return h+`</div>`;
-  return h+`<div class="grid2" style="margin-top:8px"><label class="field"><span class="lbl">Od</span><input type="date" id="c-od" value="${z.od}" data-ch="c-od"></label><label class="field"><span class="lbl">Do</span><input type="date" id="c-do" value="${z.do}" data-ch="c-do"></label></div>
+  return h+`<label class="field" style="margin-top:8px"><span class="lbl">Status jazd</span><select id="c-st" data-ch="c-st">${CZ_ST.map(([v,t])=>`<option value="${v}"${v===z.st?" selected":""}>${t}</option>`).join("")}</select></label>
+    <div class="grid2" style="margin-top:8px"><label class="field"><span class="lbl">Od</span><input type="date" id="c-od" value="${z.od}" data-ch="c-od"></label><label class="field"><span class="lbl">Do</span><input type="date" id="c-do" value="${z.do}" data-ch="c-do"></label></div>
     <label class="field"><span class="lbl">Kursant</span><select id="c-k" data-ch="c-k"><option value="">Wszyscy</option>${z.ids.map(id=>`<option value="${id}"${id===z.kid?" selected":""}>${esc(lab(id))}</option>`).join("")}</select></label>
     <div class="row" style="margin-top:8px"><span class="pill ${z.l.length?"warn":""}">Do usunięcia: ${ileJazd(z.l.length)} · ${sumH(z.l)} h</span><button class="btn ${S.czDelArm?"warnb":"ghost"}" data-act="czekaDel"${z.l.length?"":" disabled"}>${S.czDelArm?"Na pewno usunąć?":"Usuń te jazdy"}</button></div></div>`}
 function genHtml(){

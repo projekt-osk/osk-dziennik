@@ -1,7 +1,7 @@
 "use strict";
 /* jadro.js – źródło w src/ (repo osk-dziennik); wersje prod i test buduje narzedzia/buduj.mjs */
 /* ============================================================ stałe */
-const BUILD="F-2026.11.25-7"; // numer wersji – podawany w zgłoszeniach QA
+const BUILD="F-2026.11.26-3"; // numer wersji – podawany w zgłoszeniach QA
 const DNI=["Poniedziałek","Wtorek","Środa","Czwartek","Piątek","Sobota","Niedziela"];
 const DN=["Pn","Wt","Śr","Cz","Pt","Sb","Nd"];
 const PRZERWA_OD="2026-12-01";            // przerwa po 3. jeździe obowiązuje od grudnia
@@ -132,12 +132,18 @@ function check(L){
   if(L.status===CZEKA&&L.data<today())W.push("Termin minął, a kursant nie potwierdził – oznacz jazdę jako odbytą albo usuń");
   if(k&&L.rodzaj==="dodatkowa"&&k.kategoria==="OL")W.push("Kursant OL – rodzaj jazdy powinien być „OL”");
   return{w:W,day:dayCheck([...others.filter(j=>j.data===L.data),L],L.data)}}
+// P-039 pkt 1: czy kursant (z wyjątkami) ma okno w którymś dniu pn–pt, pomijając dni z całodniowym wyjątkiem instruktora (święto/wolne)
+function dostTydz(k,mon){for(let i=0;i<5;i++){const d=addD(mon,i),ie=instEx(d);
+  if(ie&&Array.isArray(ie.okna)&&!ie.okna.length)continue;
+  if((studWin(k,d)||[]).length)return true}return false}
+// wspólna zasada ostrzeżenia „brak jazd w tygodniu” (Grafik: weekMin, generator: warns): kursant bez dostępności w ogóle albo z oknem w tygodniu
+function ostrzTydz(k,mon){return !k.dostepnosc||dostTydz(k,mon)}
 function weekMin(mon){
   const sun=addD(mon,6),r=[];
   for(const k of kList()){if(!k.aktywny||k.kategoria!=="staly"||k.status!=="w_trakcie")continue;
     const js=jOf(k.id).filter(j=>j.status!=="odwołana"&&isKurs(j));
     const przed=przedH(k)+sumH(js.filter(j=>j.data<mon)),rem=30-przed;if(rem<=0)continue;
     const n=js.filter(j=>j.data>=mon&&j.data<=sun).length,need=rem<=3?1:2;
-    if(n===0)r.push({k,n,need,brak:!k.dostepnosc})}
+    if(n===0&&ostrzTydz(k,mon))r.push({k,n,need,brak:!k.dostepnosc})}
   return r}
 

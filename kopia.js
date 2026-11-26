@@ -62,12 +62,12 @@ function kopiaArkusze(kol){
   const inst=kol.ustawienia.instruktor||{},meta=kol.ustawienia.meta||{};
   const tm=m=>m==null||m===""?"":t2s(+m);
   const A=[];
-  A.push(["Kursanci",["ID","Imię","Litery nazwiska","Kategoria","Status","Aktywny","Godziny sprzed 2.11","Godziny z innym instruktorem","Saldo godzin kursu","Godziny dodatkowe sprzed","Dostępność","Wyjątki dostępności","Do poprawy (umiejętności)","Zaliczona teoria","Preferencje","Uwagi"],
+  A.push(["Kursanci",["ID","Imię","Litery nazwiska","Kategoria","Status","Aktywny","Godziny sprzed 2.11","Godziny z innym instruktorem","Saldo godzin kursu","Godziny dodatkowe sprzed","Dostępność","Wyjątki dostępności","Do poprawy (umiejętności)","Zaliczona teoria","Preferencje","Uwagi","Woli 3 h"],
     K.map(k=>[k.id,kopiaRz(k.imie),kopiaRz(k.litery),kopiaRz(k.kategoria),kopiaRz(k.status),k.aktywny===false?"nie":"tak",k.saldo_przed||0,innych(k),przedH(k)+sumH(odb(k.id)),k.dodatkowe_przed||0,
       kopiaTydzien(k.dostepnosc),(k.wyjatki||[]).map(e=>fdy(e.od)+"–"+fdy(e.do)+": "+((e.okna||[]).length?e.okna.map(wtxt).join(", "):"niedostępny")).join("; "),
       Object.entries(k.oznaczenia||{}).filter(([,l])=>{const s=(l||[]).filter(x=>kol.jazdy[x[0]]&&kol.jazdy[x[0]].status!=="odwołana").sort((a,b)=>key(kol.jazdy[a[0]]).localeCompare(key(kol.jazdy[b[0]])));return s.length&&s[s.length-1][1]==="X"}).map(([n])=>n).join(", "),
-      Object.entries(k.teoria||{}).filter(([,v])=>v).map(([n])=>n).join(", "),kopiaRz(k.preferencje),kopiaRz(k.uwagi)]),
-    [8,14,10,10,16,9,12,14,12,12,48,30,22,30,30,40]]);
+      Object.entries(k.teoria||{}).filter(([,v])=>v).map(([n])=>n).join(", "),kopiaRz(k.preferencje),kopiaRz(k.uwagi),k.woli_3h?"tak":"nie"]),
+    [8,14,10,10,16,9,12,14,12,12,48,30,22,30,30,40,9]]);
   A.push(["Jazdy",["ID jazdy","Data","Dzień","Od","Do","Godziny","Kursant (ID)","Rodzaj","Status","Płatność","Kwota (zł)","Uwagi"],
     J.map(j=>[j.id,j.data,DN[dow(j.data)],tm(j.od),tm(j.do!=null?j.do:j.od+j.h*60),j.h,j.kursant,kopiaRz(j.rodzaj),kopiaRz(j.status),kopiaRz(j.platnosc),j.kwota==null?"":+j.kwota,kopiaRz(j.uwagi)]),
     [10,12,6,7,7,9,12,11,18,13,10,40]]);

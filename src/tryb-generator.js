@@ -102,7 +102,7 @@ function adjSearch(fixed,mov,w0,w1,d){
       for(const s of [...c].sort((a,b)=>a-b)){
         if(s<w0||s+len>w1||occ.some(o=>s<o[1]&&o[0]<s+len)||!cover(L.win,s,s+len))continue;
         const v=dayViol([...occ,[s,s+len,true]].sort((a,b)=>a[0]-b[0]),d);
-        if(v.gapAdj===0){pick=s;break}}
+        if(v.gapAdj===0&&v.brk<=baseBrk){pick=s;break}}
       if(pick==null){ok=false;break}
       occ.push([pick,pick+len,true]);placed.push({L,od:pick})}
     if(!ok)continue;

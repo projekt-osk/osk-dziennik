@@ -94,7 +94,7 @@ await przypadek("A5 – checkbox wyłączony = brak pola (to samo ziarno)", asyn
 const PON = "2026-12-07";
 await przypadek("B6 – urlop kursanta pn–pt: brak ostrzeżenia „brak jazd w tygodniu” (Grafik i generator)", async () => {
   await start({ data: "2026-11-25T10:00", ekran: "tablet" });
-  const bazowy = { from: "2026-12-07", to: "2026-12-13", fixed: [{ data: PON, od: 480, h: 3 }, { data: PON, od: 660, h: 3 }, { data: PON, od: 840, h: 2 }], dost: { 0: [[480, 1200]] }, week: PON };
+  const bazowy = { from: "2026-12-07", to: "2026-12-13", fixed: [{ data: PON, od: 480, h: 3 }, { data: PON, od: 660, h: 3 }, { data: PON, od: 840, h: 2 }, { data: PON, od: 960, h: 2 }], dost: { 0: [[480, 1200]] }, week: PON };
   const baza = await gen(bazowy);                                     // dostępny tylko w pn, dzień zapełniony → ostrzeżenie
   assert.ok(baza.week.includes("ID_002") && baza.warns.length === 1, "kontrola: bez urlopu ostrzeżenie powinno być: " + JSON.stringify(baza));
   const urlop = await gen({ ...bazowy, wyjatki: [{ od: PON, do: "2026-12-11", okna: [] }] });
@@ -110,7 +110,7 @@ await przypadek("B7 – kursant dostępny tylko w dzień z całodniowym wyjątki
   assert.ok(!wolne.week.includes("ID_002"), "Grafik: jedyny dzień kursanta to wolne instruktora – bez ostrzeżenia");
   assert.deepEqual(wolne.warns, [], "generator: bez ostrzeżenia");
   await start({ data: "2026-11-25T10:00", ekran: "tablet" });
-  const inny = await gen({ ...bazowy, instWyj: [sw("2026-12-09")], fixed: [{ data: PON, od: 480, h: 3 }, { data: PON, od: 660, h: 3 }, { data: PON, od: 840, h: 2 }] });
+  const inny = await gen({ ...bazowy, instWyj: [sw("2026-12-09")], fixed: [{ data: PON, od: 480, h: 3 }, { data: PON, od: 660, h: 3 }, { data: PON, od: 840, h: 2 }, { data: PON, od: 960, h: 2 }] });
   assert.ok(inny.week.includes("ID_002"), "kontrola: wolne w inny dzień niż dostępność kursanta – ostrzeżenie zostaje (Grafik)");
   assert.equal(inny.warns.length, 1, "kontrola: generator – ostrzeżenie zostaje");
 });

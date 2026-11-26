@@ -52,6 +52,19 @@ await przypadek("ostrzeżenie tygodnia: brak dostępności kursanta lub święto
   assert.ok(!w.swiete3.includes("ID_001"), "wszystkie dostępne dni to święta – bez ostrzeżenia");
 });
 
+await przypadek("generator: urlop cały tydzień = brak ostrzeżenia „brak jazd w tygodniu” (ta sama zasada co Grafik)", async () => {
+  await start({ data: "2026-11-25T10:00", ekran: "tablet" });
+  const w = await strona().evaluate(() => {
+    const mon = "2026-12-07", o = {};
+    S.K.ID_001 = { ...S.K.ID_001, wyjatki: [{ od: mon, do: addD(mon, 6), okna: [] }] };          // urlop 7.12–13.12
+    o.grafik = weekMin(mon).map((x) => x.k.id);
+    o.warns = generuj("2026-11-30", "2026-12-13").warns.filter((x) => x.includes(lab("ID_001")));
+    return o;
+  });
+  assert.ok(!w.grafik.includes("ID_001"), "Grafik: bez ostrzeżenia " + w.grafik);
+  assert.deepEqual(w.warns, [], "generator: urlop cały tydzień nie powinien dawać ostrzeżenia: " + w.warns);
+});
+
 await przypadek("masowe usuwanie: wybór statusu propozycja / czeka", async () => {
   await start({ data: "2026-11-25T10:00", ekran: "tablet" });
   const r = await strona().evaluate(() => {

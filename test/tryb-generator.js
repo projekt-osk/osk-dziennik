@@ -191,7 +191,7 @@ function generuj(from,to){
       reset();mix=null;extOff=true;tydzien();extOff=false;wyb={sc:ocen(true),stan:all.slice()}}
     mix=null;all.length=0;wyb.stan.forEach(x=>all.push(x));
     // BUG-006: ostrzegamy tylko za tydzień, którego większość dni pracy jest w zakresie
-    if(days.length*2>pracy.length)for(const k of studs){const t=tgt(k),n=inW(k);if(t>0&&n===0)warns.push(`${lab(k.id)}: brak jazd w tygodniu ${fd(mon)}–${fd(sun)}`)}
+    if(days.length*2>pracy.length)for(const k of studs){const t=tgt(k),n=inW(k);if(t>0&&n===0&&ostrzTydz(k,mon))warns.push(`${lab(k.id)}: brak jazd w tygodniu ${fd(mon)}–${fd(sun)}`)}
   }
   // P-022: zabezpieczenie – propozycja nie może nachodzić na żadną nieodwołaną jazdę ani inną propozycję
   const created=[];all.filter(j=>!j.fixed).sort(cmpJ).forEach(L=>{const e=L.od+L.h*60;

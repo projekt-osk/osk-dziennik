@@ -1,6 +1,6 @@
 // Service worker OSK (test) – cache plików aplikacji, praca bez sieci.
 // Nowa wersja (inny BUILD) instaluje się w tle przy otwarciu i obowiązuje od kolejnego otwarcia aplikacji.
-const BUILD = "F-2026.11.26-1";
+const BUILD = "F-2026.11.26-2";
 const PREFIX = "osk-test-";
 const CACHE = PREFIX + BUILD;
 const SDK = "https://www.gstatic.com/firebasejs/10.14.1/";

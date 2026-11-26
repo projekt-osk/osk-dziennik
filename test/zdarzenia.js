@@ -34,7 +34,7 @@ const A={
   czekaToggle(){S.czOpen=!S.czOpen;S.czDelArm=false;render()},
   czekaDel(){if(pvBlok())return;const z=czekaZakres();if(!z||!z.l.length)return;  // P-033 pkt 3
     if(!S.czDelArm){S.czDelArm=true;render();setTimeout(()=>{S.czDelArm=false;render()},4000);return}
-    S.czDelArm=false;z.l.forEach(j=>{delete S.J[j.id];rm("jazdy",j.id)});oczyscPoJazdach(z.l.map(j=>j.id));render();toast(`Usunięto: ${ileJazd(z.l.length)} (czekały na kursanta)`)},
+    S.czDelArm=false;z.l.forEach(j=>{delete S.J[j.id];rm("jazdy",j.id)});oczyscPoJazdach(z.l.map(j=>j.id));render();toast(`Usunięto: ${ileJazd(z.l.length)} (${z.st===CZEKA?"czekały na kursanta":"propozycje"})`)},
   platnosc(el){const d=S.draft;if(!d||d.rodzaj!=="dodatkowa")return;d.platnosc=el.dataset.v;  // P-033 pkt 4
     if(d.platnosc==="gotowka"){if(d.kwota==null||d.kwota===""){const p=kwotaPodp(d);if(p!=null)d.kwota=p}}else{delete d.kwota;delete d.kwotaRecz}
     platSync();updWarn()},
@@ -126,7 +126,6 @@ const A={
   quick(el){commitDraft(el.dataset.s)},
   cancelJ(){S.draft.status="odwołana";document.getElementById("d-s").value="odwołana";const u=document.getElementById("d-u");u.placeholder="Powód odwołania";u.focus();updWarn();toast("Wpisz powód i zapisz")},
   delJ(){if(!S.delArm){S.delArm=true;drawSheet();return}const id=S.draft.id,kid=S.J[id]?.kursant;delete S.J[id];rm("jazdy",id);oczyscPoJazdach([id]);closeSheet();render();if(kid)syncStatus(kid);toast("Jazda usunięta")},
-  impCancel(){S.imp=null;render()},
   // F-2026.11.25: konto Google i baza Firestore
   zaloguj(){if(!S.db)return;S.loginErr=null;render();S.db.login().catch(e=>{const c=e?.code||"";S.loginErr=c.includes("popup-closed")||c.includes("cancelled-popup")?"Logowanie przerwane.":c==="auth/network-request-failed"?"Brak sieci – logowanie wymaga internetu.":c==="auth/unauthorized-domain"?"Ta domena nie jest dopuszczona w Firebase (Authentication → Settings → Authorized domains).":"Nie udało się zalogować ("+(c||e?.message||e)+").";render()})},
   wyloguj(){if(!S.db)return;if(!S.wylArm){S.wylArm=true;render();setTimeout(()=>{if(S.wylArm){S.wylArm=false;render()}},4000);return}S.wylArm=false;S.db.logout().catch(e=>toast("Nie udało się wylogować ("+(e?.code||e)+")"))},
@@ -156,7 +155,7 @@ function winMut(ctx,fn){
 function winAdd(w){const{ctx,d}=S.addWin;S.addWin=null;winMut(ctx,t=>{const l=(t[String(d)]||[]).slice();if(w[0]===0&&w[1]===1440)t[String(d)]=[w];else{l.push(w);l.sort((a,b)=>a[0]-b[0]);const m=[];for(const x of l){const p=m[m.length-1];if(p&&x[0]<=p[1])p[1]=Math.max(p[1],x[1]);else m.push([x[0],x[1]])}t[String(d)]=m}})}  // P-023 pkt 1
 
 // Akcje dozwolone w Podglądzie (nie zmieniają danych); każda inna pokazuje PV_MSG.
-const PV_OK=new Set(["tab","filter","openK","back","ktab","togglePast","toggleDost","toggleKset","pv","tf","week","pickDay","weekToday","openJ","closeSheet","toggleOdw","togglePastDays","genToggle","wiad","wiadBack","kopiuj","wolne","wtBack","wtTyp","wtNav","wtKopiuj","dur","toggleSmsU","kopiujU","platnosc","gotToggle","gotMon","cancelNewK","addWinCancel","addExCancel","impCancel","zaloguj","wyloguj","kopiujUid","retryDb","eksport","kopiaXl","tydToggle","weToggle","kosztCancel","kosztRodz","rejNav","rejPdf","rejToggle","tydPdf"]);
+const PV_OK=new Set(["tab","filter","openK","back","ktab","togglePast","toggleDost","toggleKset","pv","tf","week","pickDay","weekToday","openJ","closeSheet","toggleOdw","togglePastDays","genToggle","wiad","wiadBack","kopiuj","wolne","wtBack","wtTyp","wtNav","wtKopiuj","dur","toggleSmsU","kopiujU","platnosc","gotToggle","gotMon","cancelNewK","addWinCancel","addExCancel","zaloguj","wyloguj","kopiujUid","retryDb","eksport","kopiaXl","tydToggle","weToggle","kosztCancel","kosztRodz","rejNav","rejPdf","rejToggle","tydPdf"]);
 const PV_OK_CH=new Set(["mj","pvt","pvd","tj","g-od","g-do","c-od","c-do","c-k","nk-kat","ex-typ"]);
 // BUG-020: drugie dotknięcie w to samo miejsce w ciągu 450 ms (albo dblclick) jest ignorowane – po przerysowaniu trafiłoby w inny przycisk.
 let lastTap={t:0,x:0,y:0};
@@ -177,6 +176,7 @@ document.addEventListener("change",e=>{const el=e.target,k=S.K[S.kid];
   switch(el.dataset.ch){
     case "uwagi":if(k&&el.value!==(k.uwagi||""))saveK(k,c=>c.uwagi=el.value);break;
     case "pref":if(k&&el.value!==(k.preferencje||""))saveK(k,c=>c.preferencje=el.value);break;
+    case "c-st":S.czSt=el.value;S.czK="";S.czDelArm=false;render();break;
     case "c-od":S.czFrom=el.value;S.czDelArm=false;render();break;
     case "c-do":S.czTo=el.value;S.czDelArm=false;render();break;
     case "c-k":S.czK=el.value;S.czDelArm=false;render();break;
@@ -185,6 +185,7 @@ document.addEventListener("change",e=>{const el=e.target,k=S.K[S.kid];
       S.INST=I;put("ustawienia","instruktor",I);render();toast(q===""?"Stawka usunięta":"Zapisano stawkę za godzinę");break}
     case "kim":{const v=el.value.trim();if(k&&v!==(k.imie||""))saveK(k,c=>c.imie=v);break}
     case "klit":{const v=el.value.trim();if(k&&v&&v!==k.litery)saveK(k,c=>c.litery=v);break}
+    case "woli3":if(k)saveK(k,c=>{if(el.checked)c.woli_3h=true;else delete c.woli_3h});break;
     case "kst":if(k&&el.value==="ukonczony"&&k.kategoria==="staly"&&saldo(k)<30){toast(`Status „ukończony kurs” liczy się z godzin – ${lab(k.id)} ma ${saldo(k)} z 30 h.`);render();break}
       if(k){const zOL=k.kategoria==="OL"&&el.value!=="OL";saveK(k,c=>{c.status=el.value;c.kategoria=el.value==="OL"?"OL":"staly";if(zOL)c.zOL=true;if(el.value==="OL")delete c.zOL});
       if(zOL){S.showKset=true;toast("Kursant stały – godziny OL u Ciebie liczą się do 30 h. Godziny od poprzedniego instruktora dopisz w Ustawieniach kursanta.")}else syncStatus(k.id)}break;
@@ -198,7 +199,6 @@ document.addEventListener("change",e=>{const el=e.target,k=S.K[S.kid];
     case "g-do":S.genTo=el.value;break;
     case "nk-kat":S.newK.kat=el.value;render();break;
     case "ex-typ":{S.addEx.typ=el.value;S.addEx.od=document.getElementById("ex-od").value;const dd=document.getElementById("ex-do");if(dd)S.addEx.do=dd.value;S.addEx.pow=document.getElementById("ex-pow").value;render();break}
-    case "impfile":{const f=el.files&&el.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);if(!Array.isArray(d.kursanci)||!Array.isArray(d.jazdy)||!d.instruktor)throw 0;S.imp={data:d}}catch(x){S.imp={err:"To nie jest plik dane-pilot.json z importu."}}render()});break}
   }});
 document.addEventListener("focusout",()=>{setTimeout(()=>{if(S.pending)render()},0)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.draft)closeSheet()});

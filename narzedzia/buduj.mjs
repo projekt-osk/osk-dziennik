@@ -39,13 +39,13 @@ const TEST_BAR = '<div class="testbar" style="background:#b42318;color:#fff;text
   '<style>.ktabs{top:calc(env(safe-area-inset-top,0px) + 84px)!important}</style>';
 const XLSX_URL = /const XLSX_URL="([^"]+)"/.exec(readFileSync(join(SRC, "kopia.js"), "utf8"))[1]; // jedno miejsce: kopia.js → także cache sw.js
 const STATYCZNE = ["style.css", "jadro.js", "baza.js", "widoki-karta.js", "widoki-ekrany.js", "tydzien-pdf.js",
-  "tryb-generator.js", "wiadomosci-arkusz.js", "kopia.js", "zdarzenia.js", "firebase.js", "icon.svg", "icon-192.png", "icon-512.png"];
+  "tryb-generator.js", "wiadomosci-arkusz.js", "kopia.js", "zdarzenia.js", "firebase.js", "icon.svg", "icon-180.png", "icon-192.png", "icon-512.png"];
 
 for (const [nazwa, e] of Object.entries(ENV)) {
   const test = nazwa === "test";
   mkdirSync(e.out, { recursive: true });
   const pliki = [...STATYCZNE, ...(test ? ["przyklad.js"] : [])];
-  for (const f of pliki) copyFileSync(join(SRC, f), join(e.out, f));
+  for (const f of pliki) copyFileSync(join(SRC, f.startsWith("icon") ? join("ikony", nazwa, f) : f), join(e.out, f)); // ikony: src/ikony/<prod|test>/
   writeFileSync(join(e.out, "konfig.js"),
     `/* generowany przez narzedzia/buduj.mjs – nie edytuj */\nwindow.OSK_KONFIG=${JSON.stringify({ srodowisko: nazwa, firebase: e.firebase })};\n`);
   const sub = (s) => s.replaceAll("{{BUILD}}", BUILD).replaceAll("{{SRODOWISKO}}", nazwa).replaceAll("{{NAZWA}}", e.nazwa)
